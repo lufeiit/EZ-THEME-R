@@ -511,9 +511,3 @@ export default {
   }
 };
 </script>
-
-<style lang="scss" scoped>
-.chatwoot-embed-container {
-  
-}
-</style>
