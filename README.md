@@ -1,5 +1,7 @@
 # V3Board User 前端项目
 
+本项目基于原版 [Github仓库地址](https://github.com/EZTHEME/EZ_THEME)，二次开发
+
 一个美观、现代的V2Board管理后台前端项目，基于Vue 3开发。
 
 ## 特性
