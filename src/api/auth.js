@@ -596,10 +596,11 @@ export function oauth(data) {
   });
 }
 
-export function getTelegramCode() {
+export function getTelegramCode(code) {
   return request({
     url: '/passport/oauth/telegram',
     method: 'get',
+    params: { code: code || '' }
   });
 }
 

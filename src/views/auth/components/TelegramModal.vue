@@ -1,6 +1,7 @@
 <script setup lang="js">
 import { IconCopy, IconX } from "@tabler/icons-vue";
 import {ref, watch} from "vue";
+import { useRoute } from "vue-router";
 import { getTelegramCode, checkTelegram } from "@/api/auth";
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import { useToast } from "@/composables/useToast";
@@ -10,6 +11,8 @@ const props = defineProps({
     telegram_bot_name: ''
   }
 })
+
+const route = useRoute();
 
 const { showToast } = useToast();
 
@@ -57,7 +60,7 @@ const getCode = async () => {
   clearTimeout(checkTimer)
   loading.value = true;
   try {
-    const res = await getTelegramCode();
+    const res = await getTelegramCode(route.query.code || '');
     const { hash, expires_in } = res.data;
     code.value = hash;
     expires.value = expires_in;
