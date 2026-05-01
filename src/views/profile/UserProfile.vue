@@ -309,6 +309,48 @@
 
 
 
+        <!-- 账号设置 -->
+
+        <div class="profile-card">
+
+          <div class="card-header">
+
+            <h3>{{ $t('profile.accountSettings') }}</h3>
+
+          </div>
+
+          <div class="settings-content">
+
+            <div class="setting-item">
+
+              <div class="setting-info">
+
+                <span class="setting-label">{{ $t('profile.autoRenewal') }}</span>
+
+                <span class="setting-description">{{ $t('profile.autoRenewalDesc') }}</span>
+
+              </div>
+
+              <div class="setting-toggle">
+
+                <label class="switch" :class="{ 'disabled': updatingSettings }">
+
+                  <input type="checkbox" v-model="remindAutoRenewal" @change="updateRemindSettings('auto_renewal')" :disabled="updatingSettings" />
+
+                  <span class="slider round" :class="{ 'loading': updatingAutoRenewal }"></span>
+
+                </label>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+
         <!-- 安全设置 -->
 
         <div class="profile-card">
@@ -1070,6 +1112,8 @@ const remindExpire = ref(false);
 
 const remindTraffic = ref(false);
 
+const remindAutoRenewal = ref(false);
+
 const subscriptionUrl = ref('');
 
 const showEmaildModal = ref(false);
@@ -1157,6 +1201,8 @@ const updatingExpire = ref(false);
 
 const updatingTraffic = ref(false);
 
+const updatingAutoRenewal = ref(false);
+
 const showImportSubscription = ref(DASHBOARD_CONFIG.showImportSubscription)
 
 const passwordForm = ref({
@@ -1234,6 +1280,8 @@ const fetchUserInfo = async (showLoading = true) => {
       remindExpire.value = !!response.data.remind_expire;
 
       remindTraffic.value = !!response.data.remind_traffic;
+
+      remindAutoRenewal.value = !!response.data.auto_renewal;
 
 
 
@@ -1482,6 +1530,10 @@ const updateRemindSettings = async (type) => {
 
     updatingTraffic.value = true;
 
+  } else if (type === 'auto_renewal') {
+
+    updatingAutoRenewal.value = true;
+
   }
 
 
@@ -1492,7 +1544,9 @@ const updateRemindSettings = async (type) => {
 
       remind_expire: remindExpire.value ? 1 : 0,
 
-      remind_traffic: remindTraffic.value ? 1 : 0
+      remind_traffic: remindTraffic.value ? 1 : 0,
+
+      auto_renewal: remindAutoRenewal.value ? 1 : 0
 
     };
 
@@ -1518,6 +1572,8 @@ const updateRemindSettings = async (type) => {
 
     remindTraffic.value = !!userInfo.value.remind_traffic;
 
+    remindAutoRenewal.value = !!userInfo.value.auto_renewal;
+
 
 
     showError(t('profile.updateError'));
@@ -1533,6 +1589,8 @@ const updateRemindSettings = async (type) => {
     updatingExpire.value = false;
 
     updatingTraffic.value = false;
+
+    updatingAutoRenewal.value = false;
 
   }
 
