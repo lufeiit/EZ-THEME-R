@@ -648,7 +648,7 @@ export default {
 
     const getPlanMainPriceType = (plan) => {
 
-      const priceTypes = SHOP_CONFIG.periodOrder || ['three_year_price', 'two_year_price', 'year_price', 'half_year_price', 'quarter_price', 'month_price', 'onetime_price'];
+      const priceTypes = SHOP_CONFIG.periodOrder || ['year_price', 'half_year_price', 'quarter_price', 'month_price', 'onetime_price'];
 
 
 
@@ -761,7 +761,7 @@ export default {
 
               plans.value.forEach(plan => {
 
-                const priceTypes = SHOP_CONFIG.periodOrder || ['three_year_price', 'two_year_price', 'year_price', 'half_year_price', 'quarter_price', 'month_price', 'onetime_price'];
+                const priceTypes = SHOP_CONFIG.periodOrder || ['year_price', 'half_year_price', 'quarter_price', 'month_price', 'onetime_price'];
 
 
 
@@ -849,13 +849,7 @@ export default {
 
         half_year_price: plan.half_year_price,
 
-        year_price: plan.year_price,
-
-        two_year_price: plan.two_year_price,
-
-        three_year_price: plan.three_year_price,
-
-        onetime_price: plan.onetime_price
+        year_price: plan.year_price
 
       };
 
