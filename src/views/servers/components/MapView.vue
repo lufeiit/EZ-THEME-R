@@ -27,15 +27,15 @@ const selectedLocationName = ref('');
 const names = [
   {
     id: '1',
-    name: 'Basis'
+    name: ''
   },
   {
     id: '2',
-    name: 'Standard'
+    name: ''
   },
   {
     id: '3',
-    name: 'Premium'
+    name: ''
   }
 ];
 

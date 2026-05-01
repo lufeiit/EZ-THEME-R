@@ -12,9 +12,6 @@
         <!-- 倍率标签 -->
         <span class="node-tag rate-tag" v-if="showNodeRate">x{{ node.rate }}</span>
 
-        <!-- 节点类型标签 -->
-        <span class="node-tag type-tag">{{ node.type }}</span>
-
         <!-- 其他标签 -->
         <template v-if="node.tags && node.tags.length > 0">
           <span v-for="(tag, index) in node.tags" :key="index" class="node-tag">

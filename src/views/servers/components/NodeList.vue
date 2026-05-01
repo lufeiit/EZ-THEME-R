@@ -48,20 +48,20 @@ const emit = defineEmits(['showDetail']);
 const names = [
   {
     id: '1',
-    name: 'Basis'
+    name: ''
   },
   {
     id: '2',
-    name: 'Standard'
+    name: ''
   },
   {
     id: '3',
-    name: 'Premium'
+    name: ''
   },
 ]
 
 const getGroupName = (id) => {
-  let name = '其它';
+  let name = '';
   const group = names.find((v) => v.id == id);
   if (group) {
     name = group.name;
