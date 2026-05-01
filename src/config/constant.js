@@ -9,7 +9,7 @@ export const userKnow = () => `<section lang="zh-CN" aria-labelledby="notice-tit
     <li><strong>合规使用：</strong> 严禁将本服务用于任何违法、违规或侵害他人权益的行为，否则后果由用户自行承担。</li>
     <li><strong>合理使用：</strong> 请避免过度或异常使用，以免影响您或他人的正常体验。</li>
     <li><strong>隐私保护：</strong> 本平台尊重并保护用户隐私，不会主动记录或保存您的使用日志。</li>
-    <li><strong>服务更新：</strong> 平台会持续优化和升级，请及时关注 <a href="https://t.me/lufeicloud" target="_blank">最新通知</a> 。</li>
+    <li><strong>服务更新：</strong> 平台会持续优化和升级，请及时关注 <a href="https://t.me/" target="_blank">最新通知</a> 。</li>
     <li><strong>沟通支持：</strong> 如有疑问或问题，可随时通过工单或网站在线客服联系我们，我们将尽快为您处理。</li>
   </ul>
 

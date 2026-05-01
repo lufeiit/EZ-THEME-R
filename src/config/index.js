@@ -22,15 +22,15 @@ export const config = {
     API_CONFIG: {
         // API URL获取方式: 'static'=使用静态URL, 'auto'=自动从当前域名获取
         urlMode: 'static',
-
+      
         // 是否展示后端联通性检测
-        showCheckBackend: false,
-
+        showCheckBackend: true,
+      
         // 静态URL模式下的基础URL (urlMode = 'static'时使用)
         // 支持字符串形式(单个API地址)或数组形式(多个备选API地址)
         // 多个地址时，会按顺序检测可用性，并使用第一个可用的地址
         staticBaseUrl: [],
-
+      
         // 自动获取模式配置 (urlMode = 'auto'时使用)
         autoConfig: {
             // 是否使用相同协议 (http/https)
@@ -40,18 +40,18 @@ export const config = {
             appendApiPath: true,
 
             // API路径
-            apiPath: '/api/v1'
+            apiPath: '/lufei'
         }
     },
 
     // 是否启用中间件代理API请求
     // 设置为true时，所有API请求将通过中间件转发
-    API_MIDDLEWARE_ENABLED: true,
-
+    API_MIDDLEWARE_ENABLED: false,
+  
     //=======================================================
     // 中间件服务器URL (不含路径) 开源地址 https://github.com/codeman857/EZ-Encrypt-Middleware
-    API_MIDDLEWARE_URL: 'https://d2ijw202als7c.ezdemo.xyz',
-
+    API_MIDDLEWARE_URL: '',
+  
     // 中间件加密KEY必须是16位的16进制字符串，必须和中间件key保持一致 在线生成地址 https://www.bejson.com/math/hex_gen/
     API_MIDDLEWARE_KEY: '4c6f8e5f9467dc71',
     //=======================================================
@@ -73,7 +73,7 @@ export const config = {
 
         // Landing页面多语言标语
         landingText: {
-            'zh-CN': '探索全球网络无限可能',
+            'zh-CN': '稳定 高速 快捷',
             'vi-VN': 'Khám phá khả năng vô hạn của mạng toàn cầu',
             'en-US': 'Explore Unlimited Possibilities of Global Network',
             'zh-TW': '探索全球網絡無限可能',
@@ -101,7 +101,7 @@ export const config = {
         primaryColor: getThemeColor(),
 
         // 是否启用落地页 (true=启用, false=禁用)
-        enableLandingPage: false // 默认启用
+        enableLandingPage: true // 默认启用
     },
 
     // 认证页面功能配置
@@ -118,7 +118,7 @@ export const config = {
             showCheckSpamTip: true,
 
             // 显示检查垃圾邮件提示的延迟时间(毫秒)
-            checkSpamTipDelay: 1000
+            checkSpamTipDelay: 5000
         },
 
         // 认证页面弹窗公告配置
@@ -133,17 +133,17 @@ export const config = {
             content: userKnow(),
 
             // 冷却时间（小时），在此时间内不会再次显示弹窗
-            cooldownHours: 24,
+            cooldownHours: 0,
 
             // 等待时间（秒），用户需要等待多少秒才能关闭弹窗，设为0表示无需等待
-            closeWaitSeconds: 3
+            closeWaitSeconds: 0
         }
     },
 
     // 认证页面布局配置
     AUTH_LAYOUT_CONFIG: {
         // 布局类型: 'center' 为居中卡片布局, 'split' 为左右分栏布局
-        layoutType: 'split',
+        layoutType: 'center',
 
         // 左右分栏布局配置 (仅当 layoutType 为 'split' 时生效)
         splitLayout: {
@@ -163,7 +163,7 @@ export const config = {
                 // 左下角问候语配置
                 greeting: {
                     // 是否显示问候语
-                    show: true,
+                    show: false,
                     // 文字颜色 (white或black)
                     color: 'white'
                 }
@@ -174,7 +174,7 @@ export const config = {
     // 商店页面配置
     SHOP_CONFIG: {
         // 是否在商店导航上显示热销标记
-        showHotSaleBadge: true,
+        showHotSaleBadge: false,
 
         // 是否显示套餐特性卡片 (true=显示, false=隐藏)
         showPlanFeatureCards: true, // 默认显示
@@ -189,7 +189,7 @@ export const config = {
         lowStockThreshold: 5,
 
         // 是否启用周期折扣计算显示 (true=启用, false=禁用)
-        enableDiscountCalculation: true, // 默认启用
+        enableDiscountCalculation: false, // 默认启用
 
         // 是否启用优惠券功能 (true=启用, false=禁用)
         enableCoupons: true,
@@ -211,13 +211,13 @@ export const config = {
             enabled: true,
 
             // 弹窗标题
-            title: "用户须知",
+            title: "购买须知",
 
             // 弹窗内容 (支持HTML)
             content: shopPopup(),
 
             // 冷却时间（小时），在此时间内不会再次显示弹窗
-            cooldownHours: 24,
+            cooldownHours: 0,
 
             // 等待时间（秒），用户需要等待多少秒才能关闭弹窗，设为0表示无需等待
             closeWaitSeconds: 0
@@ -236,7 +236,7 @@ export const config = {
         showUserEmail: false,
 
         // 是否为导入订阅按钮添加高光效果和填充底色 (true=添加效果, false=不添加效果)
-        importButtonHighlightBtnbgcolor: false,
+        importButtonHighlightBtnbgcolor: true,
 
         // ===============================
 
@@ -255,7 +255,7 @@ export const config = {
         enableRenewPlan: true,
 
         // 续费套餐按钮显示条件 ('always'=始终显示, 'expiring'=套餐即将过期时显示, 'expired'=套餐已过期时显示)
-        renewPlanDisplayMode: 'always',
+        renewPlanDisplayMode: 'expiring',
 
         // 即将过期的天数阈值 (1-30)，当剩余天数小于等于此值时触发即将过期警告
         expiringThreshold: 7,
@@ -264,7 +264,7 @@ export const config = {
 
         // 是否显示在线设备数量限制 (true=显示, false=隐藏，仅Xiao-V2board支持)
         showOnlineDevicesLimit: true,
-
+        
         // 是否显示导入订阅
         showImportSubscription: true,
 
@@ -283,7 +283,7 @@ export const config = {
         showMacOS: true,
         showWindows: true,
         showLinux: true,
-        showOpenWrt: true,
+        showOpenWrt: false,
 
         // 客户端下载链接  //可以改成文档链接直接在新标签页打开
         clientLinks: {
@@ -341,7 +341,7 @@ export const config = {
     // 用户中心页面配置
     PROFILE_CONFIG: {
         // 是否显示礼品卡兑换栏目 (true=显示, false=隐藏)
-        showGiftCardRedeem: false, // 只有Xiao-V2board支持礼品卡兑换
+        showGiftCardRedeem: true, // 只有Xiao-V2board支持礼品卡兑换
 
         // 是否显示最近登录设备栏目 (true=显示, false=隐藏)
         showRecentDevices: true
@@ -361,7 +361,7 @@ export const config = {
     // 验证码配置
     CAPTCHA_CONFIG: {
         // 验证方式: 'google' 或 'cloudflare'
-        captchaType: 'google',
+        captchaType: 'cloudflare',
 
         // Google reCAPTCHA 配置 默认v2版本
         google: {
@@ -432,13 +432,13 @@ export const config = {
     // 充值相关配置
     WALLET_CONFIG: {
         // 预设充值金额选项（单位：元）
-        presetAmounts: [5, 10, 68, 128, 256, 328, 398, 488],
+        presetAmounts: [50, 100, 200, 500, 1000],
 
         // 默认选中的充值金额（如果设为null则不预选金额）
-        defaultSelectedAmount: 10,
+        defaultSelectedAmount: 50,
 
         // 最小充值金额（单位：元）
-        minimumDepositAmount: 5
+        minimumDepositAmount: 15
     },
 
     // =======================================================
@@ -454,7 +454,7 @@ export const config = {
         // 邀请链接配置
         inviteLinkConfig: {
             // 链接模式：'auto'=自动使用当前站点域名，'custom'=使用自定义域名
-            linkMode: 'auto',
+            linkMode: 'custom',
             // 自定义域名，当linkMode为'custom'时使用
             customDomain: 'https://example.com'
         }
@@ -474,8 +474,8 @@ export const config = {
             'WeChat': true,  // 微信内置浏览器
             'Baidu': true,   // 百度浏览器
             'Sogou': true,   // 搜狗浏览器
-            'UC': false,     // UC浏览器
-            'Maxthon': false // 傲游浏览器
+            'UC': true,     // UC浏览器
+            'Maxthon': true // 傲游浏览器
         },
 
         // 推荐下载的浏览器链接
@@ -498,7 +498,7 @@ export const config = {
             // 弹窗内容 (支持HTML)
             content: ticketPopup(),
             // 冷却时间（小时），在此时间内不会再次显示弹窗
-            cooldownHours: 24,
+            cooldownHours: 0,
             // 等待时间（秒），用户需要等待多少秒才能关闭弹窗，设为0表示无需等待
             closeWaitSeconds: 0
         },
@@ -532,7 +532,7 @@ export const config = {
         showNodeDetails: false,
 
         // 是否允许查看节点详细信息（控制详情按钮和模态框）
-        allowViewNodeInfo: true
+        allowViewNodeInfo: false
     },
 
     // 客服系统配置
@@ -557,7 +557,7 @@ export const config = {
         embedMode: 'embed',
 
         // 是否在未登录状态下也显示客服图标
-        showWhenNotLoggedIn: true,
+        showWhenNotLoggedIn: false,
 
         // Chatwoot 自定义属性 key 映射（仅当 type 为 'chatwoot' 时生效）
         // 这些 key 必须与 Chatwoot 后台 Settings → Custom Attributes 中创建的属性 key 一致
@@ -588,7 +588,7 @@ export const config = {
             // 移动版图标距离右下角的距离
             mobile: {
                 right: '20px',
-                bottom: '80px'
+                bottom: '100px'
             }
         }
     },
@@ -598,13 +598,13 @@ export const config = {
         // 可选值: 'invite', 'docs', 'tickets', 'nodes', 'orders', 'traffic', 'wallet', 'profile'
         // 'wallet' 只有 xiao-v2board 支持 非 xiao-v2board 面板请勿设置为 wallet
         // 默认值为 'invite'
-        thirdNavItem: 'invite',
+        thirdNavItem: 'docs',
 
         // 可选：第四个导航项（插入在“更多”之前）。为空字符串或未设置则不插入
         // 可选值同上: 'invite', 'docs', 'tickets', 'nodes', 'orders', 'traffic', 'wallet', 'profile'
         // 默认值为 'docs'
         // 注意：如果第三个导航项设置为 'invite'，则第四个导航项不能设置为 'invite'
-        fourthNavItem: 'docs',
+        fourthNavItem: 'invite',
     },
 
     // More页面自定义卡片配置
@@ -623,14 +623,6 @@ export const config = {
         // 4. 您可以从https://tabler.io/icons 获取图标的SVG代码
         customCards: [
             // 自定义卡片示例
-            /*{
-                id: 'github',                  // 卡片唯一ID
-                title: 'GitHub',               // 卡片标题
-                description: '访问我们的GitHub', // 卡片描述
-                svgIcon: '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" /></svg>',
-                url: 'https://github.com',     // 点击卡片跳转的URL
-                openInNewTab: true             // 是否在新标签页打开
-            },*/
             {
                 id: 'telegram',
                 title: 'Telegram',
