@@ -10,7 +10,7 @@
     <!-- 预加载字体 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700" rel="stylesheet">
     <%= typeof injectCustomScript !== 'undefined' ? injectCustomScript : '' %>
 
     <!-- 全局样式 -->
@@ -77,6 +77,54 @@
 <div id="app"></div>
 <!-- built files will be auto injected -->
 <!-- 隐蔽版本号 若不想显示版本号 请注释下方 div 标签-->
-<div class="app-version">v1.0.0</div>
+<!-- <div class="app-version">v0.3.8</div> -->
+    <script>
+        // 动态更新教程页面的浏览器标题
+        (function() {
+            function updateDocTitle() {
+                // 检查是否在教程详情页
+                if (window.location.hash && window.location.hash.includes('/docs/')) {
+                    // 查找教程内容中的第一个 h1 标题
+                    const observer = new MutationObserver(function(mutations, obs) {
+                        const tutorialSection = document.querySelector('.tutorial-section h1');
+                        if (tutorialSection) {
+                            const title = tutorialSection.textContent.trim();
+                            if (title) {
+                                // 获取网站名称
+                                const siteName = window.EZ_CONFIG && window.EZ_CONFIG.SITE_CONFIG 
+                                    ? window.EZ_CONFIG.SITE_CONFIG.siteName 
+                                    : '路飞 Cloud';
+                                // 更新浏览器标题
+                                document.title = title + ' - ' + siteName;
+                                // 停止观察
+                                obs.disconnect();
+                            }
+                        }
+                    });
+                    
+                    // 开始观察 DOM 变化
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true
+                    });
+                    
+                    // 5秒后停止观察（防止持续观察）
+                    setTimeout(function() {
+                        observer.disconnect();
+                    }, 5000);
+                }
+            }
+            
+            // 监听路由变化
+            window.addEventListener('hashchange', function() {
+                setTimeout(updateDocTitle, 300);
+            });
+            
+            // 页面加载时执行
+            window.addEventListener('load', function() {
+                setTimeout(updateDocTitle, 500);
+            });
+        })();
+    </script>
 </body>
 </html>

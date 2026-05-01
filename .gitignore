@@ -16,6 +16,7 @@ build/
 # 忽略 macOS 和 Windows 系统文件
 .DS_Store
 Thumbs.db
+._*
 
 # 忽略 IDE 临时文件（如 WebStorm/JetBrains 系）
 .idea/
