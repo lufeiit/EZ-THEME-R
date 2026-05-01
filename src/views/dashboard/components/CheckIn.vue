@@ -44,12 +44,12 @@ const checkin = async (type) => {
     <button class="btn-primary withdraw-btn" @click="checkin(1)">
       <div v-if="loading" class="loader"></div>
       <IconArrowsShuffle2 v-else class="btn-icon" />
-      普通签到
+      签到
     </button>
-    <button class="btn-primary lucky-checkin" @click="checkin(2)">
+    <!--<button class="btn-primary lucky-checkin" @click="checkin(2)">
       <IconMoodCrazyHappy class="btn-icon" />
       运气签到
-    </button>
+    </button>-->
 
     <LuckyModal ref="modalRef" @checkin-success="onLuckyCheckinSuccess" />
   </div>
