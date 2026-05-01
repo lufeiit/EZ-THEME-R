@@ -119,8 +119,6 @@
 
                 <h3 class="doc-title">{{ item.title }}</h3>
 
-                <p class="doc-date">{{ $t('docs.lastUpdated') }}: {{ formatDate(item.updated_at) }}</p>
-
               </div>
 
               <div class="doc-action">
