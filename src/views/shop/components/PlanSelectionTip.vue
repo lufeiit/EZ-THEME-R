@@ -3,10 +3,10 @@
     <div class="tip-content">
       <div class="tip-text-wrapper">
         <IconInfoCircle :size="20" class="tip-icon" />
-        <span class="tip-text">不知道怎么选套餐？</span>
+        <span class="tip-text">关于节点、订阅、续费、流量等等相关的说明，不清楚的点击这里</span>
       </div>
       <a
-        href="https://google.com/combo/"
+        href="#/docs/10"
         target="_blank"
         rel="noopener noreferrer"
         class="tip-link"
