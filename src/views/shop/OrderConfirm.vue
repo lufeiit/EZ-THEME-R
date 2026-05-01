@@ -16,7 +16,11 @@
 
         <div class="card-body">
 
-          <p>{{ $t('order.description') }}</p>
+          <p><strong>{{ $t('order.description') }}</strong></p>
+
+          <p><strong>{{ $t('order.description1') }}</strong></p>
+
+          <p><strong style='color: red'>{{ $t('order.description2') }}</strong></p>
 
         </div>
 
@@ -1494,7 +1498,7 @@ export default {
 
         font-size: 14px;
 
-        line-height: 1.6;
+        line-height: 2;
 
       }
 
