@@ -50,7 +50,76 @@
         </div>
       </div>
 
+      <div class="dashboard-card notice-card" :class="{'card-animate': !loading.notices}"
+           v-if="notices && notices.data && notices.data.length > 0" style="animation-delay: 0.2s">
+        <div class="card-header">
+          <h2 class="card-title">{{ $t('dashboard.siteAnnouncement') }}</h2>
+          <div class="notice-counter">
+            {{ $t('common.noticeCount', {current: currentNoticeIndex + 1, total: notices.data.length}) }}
+          </div>
+        </div>
+        <div v-if="loading.notices" class="card-body skeleton-loading">
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+        </div>
+        <div v-else class="card-body">
+          <transition name="fade-slide" mode="out-in">
+            <div class="notice-item" v-if="notices.data[currentNoticeIndex]" :key="currentNoticeIndex">
+              <div class="notice-title">{{ notices.data[currentNoticeIndex].title }}</div>
+              <div class="notice-footer">
+                <div class="notice-date">{{ formatDate(notices.data[currentNoticeIndex].created_at) }}</div>
+                <div class="notice-nav">
+                  <button
+                      class="btn-notice"
+                      @click="prevNotice"
+                      :disabled="currentNoticeIndex <= 0">
+                    <IconChevronLeft :size="16"/>
+                    {{ $t('common.prevNotice') }}
+                  </button>
+                  <button
+                      class="btn-notice"
+                      @click="showNoticeModal">
+                    <IconEye :size="16"/>
+                    {{ $t('common.viewDetails') }}
+                  </button>
+                  <button
+                      class="btn-notice"
+                      @click="nextNotice"
+                      :disabled="currentNoticeIndex >= notices.data.length - 1">
+                    {{ $t('common.nextNotice') }}
+                    <IconChevronRight :size="16"/>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </transition>
+        </div>
+      </div>
 
+      <!-- 公告弹窗 -->
+      <transition name="fade">
+        <div v-if="showNoticeDetails" class="notice-modal-overlay" @click="closeNoticeModal">
+          <transition name="popup-slide">
+            <div v-if="showNoticeDetails" class="notice-modal" :style="noticeModalStyle" @click.stop>
+              <div class="notice-modal-header">
+                <h2 class="popup-title">{{ notices.data[currentNoticeIndex].title }}</h2>
+                <button class="popup-close-btn" @click="closeNoticeModal">
+                  <IconX :size="20"/>
+                </button>
+              </div>
+              <div class="notice-modal-content">
+                <div v-html="processedNoticeContent" class="notice-content"></div>
+              </div>
+              <div class="notice-modal-footer">
+                <button class="popup-action-btn adaptive-btn" @click="closeNoticeModal">
+                  {{ $t('common.close') }}
+                </button>
+              </div>
+            </div>
+          </transition>
+        </div>
+      </transition>
 
       <!-- 套餐信息卡片 -->
       <div v-if="hasPlan" class="dashboard-card subscription-card" :class="{'card-animate': !loading.userInfo}"
@@ -654,6 +723,8 @@ import {
   IconCopy,
   IconCrosshair,
   IconDeviceDesktop,
+  IconEye,
+  IconEyeOff,
   IconFileText,
   IconHelpCircle,
   IconMail,
@@ -673,10 +744,11 @@ import {
   IconWallet,
   IconWaveSawTool,
   IconWaveSine,
+  IconX,
   IconCalendarPlus
 } from '@tabler/icons-vue';
 import CommonDialog from '@/components/popup/CommonDialog.vue';
-import {getSubscribe, getUserConfig, getUserInfo, getUserStats, setNextPeriod} from '@/api/dashboard';
+import {getNotices, getSubscribe, getUserConfig, getUserInfo, getUserStats, setNextPeriod} from '@/api/dashboard';
 import {useToast} from '@/composables/useToast';
 import {submitOrder} from '@/api/shop';
 import MarkdownIt from 'markdown-it';
@@ -779,11 +851,14 @@ export default {
     IconWaveSawTool,
     IconBrandGithub,
     IconCat,
+    IconEyeOff,
     IconShoppingBag,
     IconHelpCircle,
     IconCoins,
+    IconEye,
     IconRefresh,
     IconAlertTriangle,
+    IconX,
     IconCalendarPlus,
     CommonDialog,
     CheckIn,
@@ -792,7 +867,8 @@ export default {
     const {t, locale} = useI18n();
     const router = useRouter();
     const clientConfig = reactive(CLIENT_CONFIG);
-
+    const notices = ref([]);
+    const autoRotateNotices = ref(true);
     const userPlan = ref({
       deviceLimit: null,
       aliveIp: 0,
@@ -845,7 +921,8 @@ export default {
     const userBalance = ref('0.00');
     const currencySymbol = ref('$');
     const hasPlan = ref(true);
-
+    const currentNoticeIndex = ref(0);
+    const showNoticeDetails = ref(false);
     const showImportCard = ref(false);
     const showQrCode = ref(false);
     const {showToast} = useToast();
@@ -884,6 +961,7 @@ export default {
     const loading = reactive({
       userInfo: true,
       userStats: true,
+      notices: true,
       userPlan: true,
       subscribe: true
     });
@@ -1328,7 +1406,44 @@ export default {
       }
     };
 
+    const fetchNotices = async () => {
+      if (loading.notices === false && notices.value.data && notices.value.data.length > 0) return;
 
+      loading.notices = true;
+      try {
+        const response = await getNotices();
+        if (response && response.data) {
+          notices.value = response;
+
+          checkForPopupNotices();
+        }
+      } catch (error) {
+      } finally {
+        loading.notices = false;
+      }
+    };
+
+    const checkForPopupNotices = () => {
+      if (!notices.value || !notices.value.data || notices.value.data.length === 0) return;
+
+      const popupNoticeIndex = notices.value.data.findIndex(notice =>
+          notice.tags && Array.isArray(notice.tags) && notice.tags.includes('\u5f39\u7a97')
+      );
+
+      if (popupNoticeIndex !== -1) {
+        const noticeId = notices.value.data[popupNoticeIndex].id;
+        const popupShownKey = `popup_notice_shown_${noticeId}`;
+
+        if (!sessionStorage.getItem(popupShownKey)) {
+          currentNoticeIndex.value = popupNoticeIndex;
+          showNoticeDetails.value = true;
+          sessionStorage.setItem(popupShownKey, 'true');
+          nextTick(() => {
+            updateModalHeight();
+          });
+        }
+      }
+    };
 
     const fetchUserStats = async () => {
       if (loading.userStats === false && userStats.remainingTraffic !== '0 GB') return;
@@ -1360,7 +1475,28 @@ export default {
       return userStats.pendingOrders > 0 || userStats.pendingTickets > 0;
     });
 
+    const prevNotice = () => {
+      if (currentNoticeIndex.value > 0) {
+        currentNoticeIndex.value--;
+      }
+    };
 
+    const nextNotice = () => {
+      if (currentNoticeIndex.value < notices.value.data.length - 1) {
+        currentNoticeIndex.value++;
+      }
+    };
+
+    const showNoticeModal = () => {
+      showNoticeDetails.value = true;
+      nextTick(() => {
+        updateModalHeight();
+      });
+    };
+
+    const closeNoticeModal = () => {
+      showNoticeDetails.value = false;
+    };
 
     const formatDate = (dateString) => {
       if (!dateString) return '';
@@ -1585,6 +1721,8 @@ export default {
 
       fetchSubscribe();
 
+      fetchNotices();
+
       fetchUserStats();
 
       updateQRCodeUrl();
@@ -1594,12 +1732,70 @@ export default {
       updateQRCodeUrl();
     });
 
+    const processedNoticeContent = computed(() => {
+      if (!notices.value?.data?.[currentNoticeIndex.value]?.content) {
+        return '';
+      }
+
+      const content = notices.value.data[currentNoticeIndex.value].content;
+
+      const hasHtml = /<[a-z][\s\S]*>/i.test(content);
+
+      if (hasHtml) {
+        let processedContent = content.replace(/\n/g, '<br>');
+
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = processedContent;
+
+        const buttons = tempDiv.querySelectorAll('button, a');
+        buttons.forEach(button => {
+          if (button.className && button.className.includes('eztheme-btn')) {
+            button.classList.remove('markdown-link');
+            button.style.textDecoration = 'none';
+            button.style.borderBottom = 'none';
+            button.setAttribute('data-no-markdown-style', 'true');
+          }
+
+          if (button.tagName.toLowerCase() === 'a') {
+            const href = button.getAttribute('href');
+            if (href && (href.includes('#eztheme-btn') || href.includes('?eztheme-btn') || href.includes('class=eztheme-btn'))) {
+              button.href = href
+                  .replace('#eztheme-btn', '')
+                  .replace('?eztheme-btn', '')
+                  .replace('class=eztheme-btn', '');
+              button.classList.add('eztheme-btn');
+              button.style.textDecoration = 'none';
+              button.style.borderBottom = 'none';
+              button.setAttribute('data-no-markdown-style', 'true');
+            }
+          }
+        });
+
+        return tempDiv.innerHTML;
+      } else {
+        return md.render(content);
+      }
+    });
+
     const windowWidth = ref(window.innerWidth);
     const windowHeight = ref(window.innerHeight);
+    const noticeModalStyle = ref({});
+
+    const updateModalHeight = () => {
+      const isMobile = windowWidth.value <= 768;
+      const availableHeight = windowHeight.value * (isMobile ? 0.75 : 0.8);
+
+      noticeModalStyle.value = {
+        maxHeight: `${availableHeight}px`
+      };
+    };
 
     const handleResize = () => {
       windowWidth.value = window.innerWidth;
       windowHeight.value = window.innerHeight;
+      if (showNoticeDetails.value) {
+        updateModalHeight();
+      }
     };
 
     onMounted(() => {
@@ -1632,13 +1828,26 @@ export default {
     const timers = {};
     const listeners = {};
 
+    const startAutoRotateNotices = () => {
+      if (!autoRotateNotices.value) return;
+
+      createTimer(timers, 'noticeRotation', () => {
+        if (notices.value && notices.value.data && notices.value.data.length > 1) {
+          nextNotice();
+        }
+      }, 8000, true);
+    };
+
     onActivated(() => {
       console.log('Dashboard组件被激活');
       if (needRefreshData.value) {
         fetchUserInfo();
         fetchUserStats();
+        fetchNotices();
         needRefreshData.value = false;
       }
+
+      startAutoRotateNotices();
     });
 
     onDeactivated(() => {
@@ -1690,6 +1899,7 @@ export default {
       currencySymbol,
       userPlan,
       clientConfig,
+      notices,
       loading,
       languageChangedSignal,
       goToShop,
@@ -1697,6 +1907,9 @@ export default {
       downloadClient,
       hasPendingItems,
       router,
+      currentNoticeIndex,
+      prevNotice,
+      nextNotice,
       showImportCard,
       showQrCode,
       importToClient,
@@ -1710,6 +1923,11 @@ export default {
       qrCodeUrl,
       qrCodeLoading,
       qrCodeLoaded,
+      showNoticeModal,
+      closeNoticeModal,
+      showNoticeDetails,
+      checkForPopupNotices,
+      noticeModalStyle,
       openResetTrafficModal,
       popupConfig,
       handlePopupClose,
@@ -1757,6 +1975,7 @@ export default {
       isLowTraffic,
       isTrafficDepleted,
       hasPlan,
+      processedNoticeContent,
       showRenewPlanButton,
       renewPlan,
       isXiaoPanel,
@@ -2131,7 +2350,125 @@ export default {
   }
 
 
+  .notice-card {
+    margin-bottom: 24px;
 
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .notice-counter {
+        font-size: 14px;
+        color: var(--secondary-text-color);
+      }
+    }
+
+    .notice-item {
+      position: relative;
+      padding: 16px;
+      border-radius: 8px;
+      background-color: rgba(var(--theme-color-rgb), 0.05);
+
+      .notice-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--text-color);
+      }
+
+      .notice-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+
+        .notice-date {
+          font-size: 12px;
+          color: var(--secondary-text-color);
+          opacity: 0.7;
+        }
+
+        .notice-nav {
+          display: flex;
+          gap: 8px;
+
+          .btn-notice {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            background-color: rgba(var(--theme-color-rgb), 0.1);
+            color: var(--theme-color);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &:hover:not(:disabled) {
+              background-color: rgba(var(--theme-color-rgb), 0.2);
+              transform: translateY(-1px);
+            }
+
+            &:disabled {
+              opacity: 0.5;
+              cursor: not-allowed;
+            }
+          }
+        }
+
+        @media (max-width: 576px) {
+          flex-direction: column;
+          align-items: flex-start;
+
+          .notice-nav {
+            width: 100%;
+
+            .btn-notice {
+              flex: 1;
+              justify-content: center;
+              padding: 8px;
+            }
+          }
+        }
+
+        @media (max-width: 470px) {
+          .notice-nav {
+            display: grid;
+            grid-template-rows: auto auto;
+            gap: 8px;
+            width: 100%;
+
+            .btn-notice:nth-child(2) {
+              grid-row: 1;
+              grid-column: 1 / span 2;
+            }
+
+            .btn-notice:nth-child(1),
+            .btn-notice:nth-child(3) {
+              grid-row: 2;
+            }
+
+            .btn-notice:nth-child(1) {
+              grid-column: 1;
+            }
+
+            .btn-notice:nth-child(3) {
+              grid-column: 2;
+            }
+
+            .btn-notice {
+              margin: 0;
+              width: 100%;
+            }
+          }
+        }
+      }
+    }
+  }
 
 
   .pending-items-card {
@@ -3375,7 +3712,23 @@ export default {
       }
     }
 
+    :deep(a.eztheme-btn) {
+      display: inline-block;
+      padding: 8px 16px;
+      background-color: var(--theme-color);
+      color: white;
+      border-radius: 8px;
+      margin: 10px 0;
+      text-decoration: none;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: var(--primary-color-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(var(--theme-color-rgb), 0.3);
+      }
     }
+  }
 }
 
 .notice-modal-footer {
