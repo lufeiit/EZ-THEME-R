@@ -134,7 +134,13 @@ export default {
     captchaError: 'خطا در تایید، دوباره امتحان کنید',
     captchaLoading: 'در حال بارگذاری تایید...',
     verifyTokenSuccess: 'تایید توکن موفق',
-    verifyTokenFailed: 'تایید توکن شکست خورد، لطفا دوباره امتحان کنید'
+    verifyTokenFailed: 'تایید توکن شکست خورد، لطفا دوباره امتحان کنید',
+    telegramLogin: 'ورود تلگرام',
+    telegramStep1Text: 'کپی دستور',
+    telegramExpires: 'منقضی می‌شود در',
+    telegramStep2Text: 'ارسال به',
+    copySuccess: 'با موفقیت کپی شد',
+    copyFailed: 'کپی ناموفق'
   },
   validation: {
     required: '{field} نمی تواند خالی باشد',
@@ -230,7 +236,9 @@ export default {
     manualImportRequired: 'وارد کردن خودکار ممکن نیست، لینک را دستی کپی کنید',
     noSubscription: 'اشتراکی موجود نیست',
     noClientsAvailable: 'برای این پلتفرم روش سریع وارد کردن موجود نیست',
-    clientNotInstalled: 'کلاینت نصب نشده، لینک اشتراک کپی شد'
+    clientNotInstalled: 'کلاینت نصب نشده، لینک اشتراک کپی شد',
+    checkIn: 'ورود روزانه',
+    luckyCheckIn: 'ورود روزانه شانسی'
   },
   platforms: {
     ios: 'iOS',
@@ -454,6 +462,7 @@ export default {
     sessionError: 'دریافت رکورد ورود شکست خورد',
     telegramGroup: 'گروه Telegram',
     telegramBot: 'ربات Telegram',
+    unbindTelegram: 'قطع اتصال Telegram',
     bindTelegram: 'اتصال به ربات Telegram',
     telegramStep1: 'گام اول',
     telegramStep2: 'گام دوم',
@@ -462,7 +471,17 @@ export default {
     commandCopied: 'دستور به کلیپ بورد کپی شد',
     iKnow: 'درک کردم',
     telegram: 'ارتباط Telegram',
-    telegramError: 'دریافت اطلاعات Telegram شکست خورد'
+    telegramError: 'دریافت اطلاعات Telegram شکست خورد',
+    changeEmail: 'تغییر ایمیل',
+    oldEmail: 'ایمیل قدیمی',
+    newEmail: 'ایمیل جدید',
+    enterVerificationCode: 'کد تأیید را وارد کنید',
+    checkSpamTip: 'اگر برای مدت طولانی ایمیلی دریافت نکردید، پوشه اسپم را بررسی کنید',
+    newPasswordSameAsOld: 'رمز عبور جدید نمی تواند با رمز عبور قدیمی یکسان باشد',
+    deleteAccount: 'حذف حساب',
+    delete: 'حذف',
+    deleteAccountConfirm: 'حذف حساب غیرقابل بازگشت است و تمام داده ها به طور کامل حذف می شوند. آیا مطمئن هستید که می خواهید حذف کنید؟',
+    accountDeletedSuccess: 'حساب شما با موفقیت حذف شد'
   },
   contextMenu: {
     refresh: 'تازه سازی صفحه',
@@ -542,6 +561,10 @@ export default {
     popup: {
       close_btn: 'درک کردم',
       wait_close_btn: 'لطفا {seconds} ثانیه صبر کنید'
+    },
+    plan_selection_tip: {
+      text: 'برای اطلاعات درباره نودها، اشتراک‌ها، تمدید، ترافیک و غیره، اینجا کلیک کنید',
+      link: 'اینجا ببینید'
     }
   },
   order: {
@@ -794,6 +817,8 @@ export default {
     contentFormatError: 'فرمت محتوای مستند اشتباه است، نمی توان نمایش داد',
     languageHint: 'زبان فعلی {currentLang} مستند ندارد، زبان دیگری امتحان کنید',
     networkError: 'خطای شبکه',
+    subscribe: 'اشتراک',
+    imageClickToZoom: 'برای بزرگنمایی روی تصویر کلیک کنید',
     welcome: {
       title: 'مرکز مستندات',
       description: 'مستندات مربوط به استفاده و تنظیمات را پیدا کنید و بخوانید'

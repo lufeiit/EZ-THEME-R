@@ -134,7 +134,13 @@ export default {
     captchaError: 'Ошибка капчи, попробуйте снова',
     captchaLoading: 'Загрузка капчи...',
     verifyTokenSuccess: 'Проверка токена успешна',
-    verifyTokenFailed: 'Ошибка проверки токена, попробуйте снова'
+    verifyTokenFailed: 'Ошибка проверки токена, попробуйте снова',
+    telegramLogin: 'Вход через Telegram',
+    telegramStep1Text: 'Скопировать команду',
+    telegramExpires: 'истекает через',
+    telegramStep2Text: 'Отправить',
+    copySuccess: 'Скопировано успешно',
+    copyFailed: 'Ошибка копирования'
   },
   validation: {
     required: '{field} не может быть пустым',
@@ -230,7 +236,9 @@ export default {
     manualImportRequired: 'Автоматический импорт невозможен, скопируйте ссылку подписки вручную',
     noSubscription: 'Нет доступной подписки',
     noClientsAvailable: 'Для этой платформы нет быстрого импорта',
-    clientNotInstalled: 'Клиент не установлен, ссылка подписки скопирована в буфер обмена'
+    clientNotInstalled: 'Клиент не установлен, ссылка подписки скопирована в буфер обмена',
+    checkIn: 'Отметиться',
+    luckyCheckIn: 'Случайная отметка'
   },
   platforms: {
     ios: 'iOS',
@@ -454,6 +462,7 @@ export default {
     sessionError: 'Ошибка получения записей о входе',
     telegramGroup: 'Группа Telegram',
     telegramBot: 'Бот Telegram',
+    unbindTelegram: 'Отвязать Telegram',
     bindTelegram: 'Привязать бота Telegram',
     telegramStep1: 'Шаг 1',
     telegramStep2: 'Шаг 2',
@@ -462,7 +471,17 @@ export default {
     commandCopied: 'Команда скопирована в буфер обмена',
     iKnow: 'Понял',
     telegram: 'Связь через Telegram',
-    telegramError: 'Ошибка получения информации Telegram'
+    telegramError: 'Ошибка получения информации Telegram',
+    changeEmail: 'Изменить email',
+    oldEmail: 'Старый email',
+    newEmail: 'Новый email',
+    enterVerificationCode: 'Введите код подтверждения',
+    checkSpamTip: 'Если вы долго не получали письмо, проверьте папку спам',
+    newPasswordSameAsOld: 'Новый пароль не может совпадать со старым',
+    deleteAccount: 'Удалить аккаунт',
+    delete: 'Удалить',
+    deleteAccountConfirm: 'Удаление аккаунта необратимо, все данные будут полностью удалены. Вы уверены, что хотите удалить?',
+    accountDeletedSuccess: 'Ваш аккаунт успешно удален'
   },
   contextMenu: {
     refresh: 'Обновить страницу',
@@ -542,6 +561,10 @@ export default {
     popup: {
       close_btn: 'Понял',
       wait_close_btn: 'Подождите {seconds} сек'
+    },
+    plan_selection_tip: {
+      text: 'Для получения информации о узлах, подписках, продлении, трафике и т.д., нажмите здесь',
+      link: 'Смотреть здесь'
     }
   },
   order: {
@@ -794,6 +817,8 @@ export default {
     contentFormatError: 'Ошибка формата документа, отображение невозможно',
     languageHint: 'Документы на языке {currentLang} отсутствуют, попробуйте другой язык',
     networkError: 'Ошибка сети',
+    subscribe: 'Подписаться',
+    imageClickToZoom: 'Нажмите на изображение для увеличения',
     welcome: {
       title: 'Центр документации',
       description: 'Найдите и прочитайте подробную документацию по использованию и настройке.'

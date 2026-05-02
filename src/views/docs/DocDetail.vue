@@ -1,121 +1,99 @@
 ﻿<template>
-
   <div class="doc-detail-container">
-
     <div class="doc-detail-inner">
-
       <!-- 返回按钮 -->
 
       <button class="back-button" @click="$router.push('/docs')">
-
         <IconArrowLeft :size="20" />
 
-        <span>{{ $t('docs.backToList') }}</span>
-
+        <span>{{ $t("docs.backToList") }}</span>
       </button>
-
-      
 
       <!-- 加载状态 -->
 
       <div v-if="loading" class="doc-loading">
-
         <LoadingSpinner />
 
-        <p>{{ $t('docs.loading') }}</p>
-
+        <p>{{ $t("docs.loading") }}</p>
       </div>
-
-
 
       <!-- 错误提示 - 美化版 -->
 
       <div v-else-if="error" class="doc-error">
-
         <div class="error-card">
-
           <div class="error-icon-wrapper">
-
             <IconAlertTriangle :size="40" class="error-icon" />
-
           </div>
 
-          <h3 class="error-title">{{ $t('common.networkError') || '网络错误' }}</h3>
+          <h3 class="error-title">
+            {{ $t("common.networkError") || "网络错误" }}
+          </h3>
 
           <p class="error-message">{{ error }}</p>
 
           <button class="retry-button" @click="fetchDocDetail">
-
-            <span class="retry-text">{{ $t('docs.retry') || '重试' }}</span>
+            <span class="retry-text">{{ $t("docs.retry") || "重试" }}</span>
 
             <IconRefresh :size="16" class="retry-icon" />
-
           </button>
-
         </div>
-
       </div>
-
-
 
       <!-- 文档内容 -->
 
       <div v-else class="doc-content">
-
         <!-- 文档头部 -->
 
         <div class="doc-header">
-
           <h1 class="doc-title">{{ docData.title }}</h1>
 
           <div class="doc-meta">
-
             <span class="doc-category">{{ docData.category }}</span>
 
             <span class="doc-date"></span>
-
           </div>
-
         </div>
-
-        
 
         <!-- 文档正文 -->
 
         <div class="doc-body" v-html="renderedContent"></div>
-
       </div>
-
     </div>
-
   </div>
-
 </template>
-
-
 
 <script setup>
 // ⭐ 修改：这里新增了 watch
-import { ref, computed, onMounted, inject, nextTick, onUnmounted, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+import {
+  ref,
+  computed,
+  onMounted,
+  inject,
+  nextTick,
+  onUnmounted,
+  watch,
+} from "vue";
+import { useI18n } from "vue-i18n";
 
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter } from "vue-router";
 
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
+import LoadingSpinner from "@/components/common/LoadingSpinner.vue";
 
-import { IconArrowLeft, IconAlertTriangle, IconRefresh } from '@tabler/icons-vue';
+import {
+  IconArrowLeft,
+  IconAlertTriangle,
+  IconRefresh,
+} from "@tabler/icons-vue";
 
-import { fetchKnowledgeDetail } from '@/api/docs';
+import { fetchKnowledgeDetail } from "@/api/docs";
 
-import MarkdownIt from 'markdown-it';
+import MarkdownIt from "markdown-it";
 
-import DOMPurify from 'dompurify';
+import DOMPurify from "dompurify";
 
-import { SITE_CONFIG } from '@/utils/baseConfig';
+import { SITE_CONFIG } from "@/utils/baseConfig";
 
-import { useToast } from '@/composables/useToast';
-
-
+import { useToast } from "@/composables/useToast";
 
 const { t, locale } = useI18n();
 
@@ -125,189 +103,126 @@ const router = useRouter();
 
 const { showToast } = useToast();
 
-const $toast = inject('$toast');
-
-
+const $toast = inject("$toast");
 
 const md = new MarkdownIt({
-
-  html: true,           
-  breaks: true,         
-  linkify: true,        
-  typographer: true,    
-  xhtmlOut: false       
+  html: true,
+  breaks: true,
+  linkify: true,
+  typographer: true,
+  xhtmlOut: false,
 });
 
-
-
-md.renderer.rules.html_block = function(tokens, idx) {
-
+md.renderer.rules.html_block = function (tokens, idx) {
   return tokens[idx].content;
-
 };
 
-
-
-md.renderer.rules.link_open = function(tokens, idx, options, env, self) {
-
+md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
   const token = tokens[idx];
 
-  const hrefIndex = token.attrIndex('href');
+  const hrefIndex = token.attrIndex("href");
 
-  let href = '';
-
-  
+  let href = "";
 
   if (hrefIndex >= 0) {
-
     href = token.attrs[hrefIndex][1];
-
   }
 
-  
-
-  if (href.includes('#eztheme-btn') || href.includes('class=eztheme-btn') || href.includes('?eztheme-btn')) {
-
+  if (
+    href.includes("#eztheme-btn") ||
+    href.includes("class=eztheme-btn") ||
+    href.includes("?eztheme-btn")
+  ) {
     token.attrs[hrefIndex][1] = href
 
-      .replace('#eztheme-btn', '')
+      .replace("#eztheme-btn", "")
 
-      .replace('class=eztheme-btn', '')
+      .replace("class=eztheme-btn", "")
 
-      .replace('?eztheme-btn', '');
+      .replace("?eztheme-btn", "");
 
-    
-
-    const classIndex = token.attrIndex('class');
+    const classIndex = token.attrIndex("class");
 
     if (classIndex < 0) {
-
-      token.attrPush(['class', 'eztheme-btn']);
-
+      token.attrPush(["class", "eztheme-btn"]);
     } else {
-
       const classes = token.attrs[classIndex][1];
 
-      if (!classes.includes('eztheme-btn')) {
-
-        token.attrs[classIndex][1] = classes + ' eztheme-btn';
-
+      if (!classes.includes("eztheme-btn")) {
+        token.attrs[classIndex][1] = classes + " eztheme-btn";
       }
-
     }
-
   }
 
-  
-
   return self.renderToken(tokens, idx, options);
-
 };
-
-
 
 const loading = ref(true);
 
-const error = ref('');
+const error = ref("");
 
 const docData = ref({
-
   id: null,
 
-  title: '',
+  title: "",
 
-  category: '',
+  category: "",
 
-  body: '',
+  body: "",
 
-  updated_at: 0
-
+  updated_at: 0,
 });
 
-
-
 const isComplexHtml = (content) => {
-
   if (!content) return false;
 
-  return /<(div|span|p|h[1-6]|table|tr|td|ul|ol|li|section|article|header|footer|nav|form|button|style|link)[\s>]/i.test(content);
-
+  return /<(div|span|p|h[1-6]|table|tr|td|ul|ol|li|section|article|header|footer|nav|form|button|style|link)[\s>]/i.test(
+    content,
+  );
 };
 
-
-
 const getUserSubscribeUrl = () => {
-
   try {
-
-    const userPlan = localStorage.getItem('userPlan');
+    const userPlan = localStorage.getItem("userPlan");
 
     if (userPlan) {
-
       const parsedPlan = JSON.parse(userPlan);
 
       if (parsedPlan && parsedPlan.subscribeUrl) {
-
         return parsedPlan.subscribeUrl;
-
       }
-
     }
-
-    
 
     if (window.userPlan && window.userPlan.subscribeUrl) {
-
       return window.userPlan.subscribeUrl;
-
     }
-
   } catch (e) {
-
-    console.error('获取订阅链接失败:', e);
-
+    console.error(t("common.networkError"), e);
   }
 
-  
-
-  return ''; 
+  return "";
 };
-
-
 
 const safeBase64Encode = (str) => {
-
   try {
-
     return btoa(str);
-
   } catch (e) {
+    console.error(t("common.base64EncodeFailed"), e);
 
-    console.error('Base64编码失败:', e);
-
-    return '';
-
+    return "";
   }
-
 };
 
-
-
 const processTemplateVariables = (content) => {
-
   if (!content) return content;
-
-  
 
   const subscribeUrl = getUserSubscribeUrl();
 
-  const siteName = SITE_CONFIG.siteName || 'EZ THEME';
+  const siteName = SITE_CONFIG.siteName || "EZ THEME";
 
   const safeBase64SubscribeUrl = safeBase64Encode(subscribeUrl);
 
   const urlEncodeSubscribeUrl = encodeURIComponent(subscribeUrl);
-
-  
 
   return content
 
@@ -318,56 +233,40 @@ const processTemplateVariables = (content) => {
     .replace(/\{\{safeBase64SubscribeUrl\}\}/g, safeBase64SubscribeUrl)
 
     .replace(/\{\{urlEncodeSubscribeUrl\}\}/g, urlEncodeSubscribeUrl);
-
 };
-
-
 
 const copyToClipboard = (text) => {
-
   if (navigator.clipboard && navigator.clipboard.writeText) {
-
-    navigator.clipboard.writeText(text)
+    navigator.clipboard
+      .writeText(text)
 
       .then(() => {
-
-        showToast('已复制到剪贴板', 'success');
-
+        showToast(t("common.copied"), "success");
       })
 
-      .catch(err => {
-
-        console.error('复制失败:', err);
+      .catch((err) => {
+        console.error(t("common.copyFailed"), err);
 
         fallbackCopyToClipboard(text);
-
       });
-
   } else {
-
     fallbackCopyToClipboard(text);
-
   }
-
 };
 
-
-
 const fallbackCopyToClipboard = (text) => {
-
   try {
-
-    const textarea = window.document.createElement('textarea');
+    const textarea = window.document.createElement("textarea");
 
     textarea.value = text;
 
-    textarea.style.position = 'fixed';
+    textarea.style.position = "fixed";
 
-    textarea.style.left = '0';
+    textarea.style.left = "0";
 
-    textarea.style.top = '0';
+    textarea.style.top = "0";
 
-    textarea.style.opacity = '0';
+    textarea.style.opacity = "0";
 
     window.document.body.appendChild(textarea);
 
@@ -375,324 +274,206 @@ const fallbackCopyToClipboard = (text) => {
 
     textarea.select();
 
-    
-
-    const successful = window.document.execCommand('copy');
+    const successful = window.document.execCommand("copy");
 
     window.document.body.removeChild(textarea);
 
-    
-
     if (successful) {
-
-      showToast('已复制到剪贴板', 'success');
-
+      showToast(t("common.copied"), "success");
     } else {
-
-      showToast('复制失败，请手动复制', 'error');
-
+      showToast(t("dashboard.copyFailed"), "error");
     }
-
   } catch (err) {
+    console.error(t("dashboard.copyFailed"), err);
 
-    console.error('后备复制方法失败:', err);
-
-    showToast('复制失败，请手动复制', 'error');
-
+    showToast(t("dashboard.copyFailed"), "error");
   }
-
 };
 
-
-
 const handleDocClick = (event) => {
-
   let target = event.target;
 
   let button = null;
 
-  
-
-  if (target.tagName === 'I' || target.tagName === 'SPAN' || target.tagName === 'SVG') {
-
-    button = target.closest('button');
+  if (
+    target.tagName === "I" ||
+    target.tagName === "SPAN" ||
+    target.tagName === "SVG"
+  ) {
+    button = target.closest("button");
 
     if (!button) {
+      const link = target.closest("a");
 
-      const link = target.closest('a');
-
-      if (link && !link.classList.contains('eztheme-btn')) {
-
+      if (link && !link.classList.contains("eztheme-btn")) {
         return;
-
       }
-
     }
-
-  } else if (target.tagName === 'BUTTON') {
-
+  } else if (target.tagName === "BUTTON") {
     button = target;
-
   } else {
-
-    button = target.closest('button');
-
+    button = target.closest("button");
   }
 
-  
-
   if (button) {
-
     const buttonText = button.textContent.trim().toLowerCase();
+    const copyKeyword = t("common.copy").toLowerCase();
+    const subscribeKeyword = t("docs.subscribe").toLowerCase();
 
-    const isSubscribeButton = buttonText.includes('复制') || 
+    const isSubscribeButton =
+      buttonText.includes(copyKeyword) ||
+      buttonText.includes(subscribeKeyword) ||
+      buttonText.includes("copy") ||
+      button.querySelector(".fa-copy");
 
-                           buttonText.includes('订阅') || 
+    if (button.hasAttribute("onclick")) {
+      const onclickValue = button.getAttribute("onclick");
 
-                           buttonText.includes('copy') || 
-
-                           button.querySelector('.fa-copy');
-
-    
-
-    if (button.hasAttribute('onclick')) {
-
-      const onclickValue = button.getAttribute('onclick');
-
-      
-
-      if (onclickValue.includes('copy(')) {
-
-        event.preventDefault(); 
-        event.stopPropagation(); 
-        
+      if (onclickValue.includes("copy(")) {
+        event.preventDefault();
+        event.stopPropagation();
 
         try {
-
           const match = onclickValue.match(/copy\(['"](.+?)['"]\)/);
 
           if (match && match[1]) {
-
             const textToCopy = match[1];
 
-            if (textToCopy === '{{subscribeUrl}}') {
-
+            if (textToCopy === "{{subscribeUrl}}") {
               copyToClipboard(getUserSubscribeUrl());
-
             } else {
-
               copyToClipboard(textToCopy);
-
             }
 
             return true;
-
           }
-
         } catch (e) {
-
-          console.error('处理复制按钮出错:', e);
-
+          console.error("处理复制按钮出错:", e);
         }
-
-      }
-
-      
-
-      else if (onclickValue.includes('jump(')) {
-
+      } else if (onclickValue.includes("jump(")) {
         event.preventDefault();
 
         event.stopPropagation();
 
-        
-
         try {
-
           const match = onclickValue.match(/jump\((\d+)\)/);
 
           if (match && match[1]) {
-
             const docId = match[1];
 
             router.push(`/docs/${docId}`);
 
             return true;
-
           }
-
         } catch (e) {
-
-          console.error('处理跳转按钮出错:', e);
-
+          console.error("处理跳转按钮出错:", e);
         }
-
       }
 
-      
-
       return;
-
     }
 
-    
-
-    if (button.hasAttribute('data-original-onclick')) {
-
-      const onclickValue = button.getAttribute('data-original-onclick');
+    if (button.hasAttribute("data-original-onclick")) {
+      const onclickValue = button.getAttribute("data-original-onclick");
 
       event.preventDefault();
 
-      
-
-      if (onclickValue.includes('copy(')) {
-
+      if (onclickValue.includes("copy(")) {
         try {
-
           const match = onclickValue.match(/copy\(['"](.+?)['"]\)/);
 
           if (match && match[1]) {
-
             const textToCopy = match[1];
 
-            if (textToCopy === '{{subscribeUrl}}') {
-
+            if (textToCopy === "{{subscribeUrl}}") {
               copyToClipboard(getUserSubscribeUrl());
-
             } else {
-
               copyToClipboard(textToCopy);
-
             }
 
             return true;
-
           }
-
         } catch (e) {
-
-          console.error('处理复制按钮出错:', e);
-
+          console.error("处理复制按钮出错:", e);
         }
-
-      }
-
-      
-
-      else if (onclickValue.includes('jump(')) {
-
+      } else if (onclickValue.includes("jump(")) {
         try {
-
           const match = onclickValue.match(/jump\((\d+)\)/);
 
           if (match && match[1]) {
-
             const docId = match[1];
 
             router.push(`/docs/${docId}`);
 
             return true;
-
           }
-
         } catch (e) {
-
-          console.error('处理跳转按钮出错:', e);
-
+          console.error("处理跳转按钮出错:", e);
         }
-
       }
-
     }
 
-    
-
     if (isSubscribeButton) {
-
       event.preventDefault();
 
       const subscribeUrl = getUserSubscribeUrl();
 
       if (subscribeUrl) {
-
         copyToClipboard(subscribeUrl);
 
         return true;
-
       }
-
     }
 
-    
-
-    if (button.hasAttribute('data-href')) {
-
+    if (button.hasAttribute("data-href")) {
       event.preventDefault();
 
-      const href = button.getAttribute('data-href');
+      const href = button.getAttribute("data-href");
 
-      const target = button.getAttribute('data-target');
-
-      
+      const target = button.getAttribute("data-target");
 
       if (href) {
-
-        if (target === '_blank') {
-
-          window.open(href, '_blank');
-
-        } else if (href.startsWith('/') || href.startsWith('./') || href.startsWith('../')) {
-
+        if (target === "_blank") {
+          window.open(href, "_blank");
+        } else if (
+          href.startsWith("/") ||
+          href.startsWith("./") ||
+          href.startsWith("../")
+        ) {
           router.push(href);
-
         } else {
-
           const externalHref = href.match(/^https?:/);
-          window.open(externalHref, target || '_blank');
-
+          window.open(externalHref, target || "_blank");
         }
 
         return true;
-
       }
-
     }
-
   }
 
-  
+  const copyKeyword = t("common.copy").toLowerCase();
+  const subscribeKeyword = t("docs.subscribe").toLowerCase();
 
-  if (event.target.textContent && 
-
-      (event.target.textContent.includes('复制') || 
-
-      event.target.textContent.includes('copy') ||
-
-      event.target.textContent.includes('订阅'))) {
-
+  if (
+    event.target.textContent &&
+    (event.target.textContent.toLowerCase().includes(copyKeyword) ||
+      event.target.textContent.toLowerCase().includes("copy") ||
+      event.target.textContent.toLowerCase().includes(subscribeKeyword))
+  ) {
     const subscribeUrl = getUserSubscribeUrl();
-
     if (subscribeUrl) {
-
       event.preventDefault();
-
       copyToClipboard(subscribeUrl);
-
       return true;
-
     }
-
   }
-
 };
-
-
 
 // 构建“无访问权限”卡片 HTML（仪表盘同款结构）
 const buildNoAccessCardHtml = () => {
-  const title = t('docs.noAccessPrompt');
-  const buyText = t('dashboard.purchasePlan');
-  const supportText = t('dashboard.ticketSupport');
+  const title = t("docs.noAccessPrompt");
+  const buyText = t("dashboard.purchasePlan");
+  const supportText = t("dashboard.ticketSupport");
   return `
     <div class="dashboard-card stats-card no-plan-card card-animate" style="margin: 12px 0;">
       <div class="no-plan-content">
@@ -717,14 +498,14 @@ const buildNoAccessCardHtml = () => {
 
 // 添加新的全局点击事件处理函数
 const handleGlobalClick = (e) => {
-  const label = e.target.getAttribute('aria-label');
-  if (label !== 'button' && label !== 'buttonSecondary') return;
-  
-  const url = e.target.getAttribute('data-url');
-  const clipboardText = e.target.getAttribute('data-clipboard-text');
-  
+  const label = e.target.getAttribute("aria-label");
+  if (label !== "button" && label !== "buttonSecondary") return;
+
+  const url = e.target.getAttribute("data-url");
+  const clipboardText = e.target.getAttribute("data-clipboard-text");
+
   if (url) {
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   } else if (clipboardText) {
     copyToClipboard(clipboardText);
   }
@@ -746,15 +527,15 @@ let currentScale = 1;
 const clamp = (val, min, max) => Math.min(max, Math.max(min, val));
 
 const setupImagePreview = () => {
-  const docBody = document.querySelector('.doc-body');
+  const docBody = document.querySelector(".doc-body");
   if (!docBody) return;
 
-  const imgs = Array.from(docBody.querySelectorAll('img'));
-  previewImages.value = imgs.map(img => img.src);
+  const imgs = Array.from(docBody.querySelectorAll("img"));
+  previewImages.value = imgs.map((img) => img.src);
 
   imgs.forEach((img, index) => {
-    img.style.cursor = 'zoom-in';
-    img.addEventListener('click', (e) => {
+    img.style.cursor = "zoom-in";
+    img.addEventListener("click", (e) => {
       e.stopPropagation();
       openImagePreview(index, img);
     });
@@ -766,12 +547,12 @@ const openImagePreview = (index, originImg) => {
 
   currentPreviewIndex.value = index;
 
-  previewOverlayEl = document.createElement('div');
-  previewOverlayEl.className = 'image-preview-overlay';
+  previewOverlayEl = document.createElement("div");
+  previewOverlayEl.className = "image-preview-overlay";
 
-  previewImgEl = document.createElement('img');
+  previewImgEl = document.createElement("img");
   previewImgEl.src = previewImages.value[index];
-  previewImgEl.className = 'image-preview-img';
+  previewImgEl.className = "image-preview-img";
 
   previewOverlayEl.appendChild(previewImgEl);
   document.body.appendChild(previewOverlayEl);
@@ -783,34 +564,38 @@ const openImagePreview = (index, originImg) => {
   const rect = originImg.getBoundingClientRect();
   const startScale = rect.width / window.innerWidth || 0.3;
 
-  previewImgEl.style.transformOrigin = 'top left';
+  previewImgEl.style.transformOrigin = "top left";
   previewImgEl.style.transform = `
     translate(${rect.left}px, ${rect.top}px)
     scale(${startScale})
   `;
 
   requestAnimationFrame(() => {
-    previewImgEl.style.transition = 'transform 0.25s ease';
-    previewImgEl.style.transform = 'translate(0,0) scale(1)';
+    previewImgEl.style.transition = "transform 0.25s ease";
+    previewImgEl.style.transform = "translate(0,0) scale(1)";
   });
 
-  previewOverlayEl.addEventListener('click', (e) => {
+  previewOverlayEl.addEventListener("click", (e) => {
     if (e.target === previewOverlayEl) {
       closePreview();
     }
   });
 
-  previewOverlayEl.addEventListener('touchstart', onTouchStart, { passive: false });
-  previewOverlayEl.addEventListener('touchmove', onTouchMove, { passive: false });
-  previewOverlayEl.addEventListener('touchend', onTouchEnd);
+  previewOverlayEl.addEventListener("touchstart", onTouchStart, {
+    passive: false,
+  });
+  previewOverlayEl.addEventListener("touchmove", onTouchMove, {
+    passive: false,
+  });
+  previewOverlayEl.addEventListener("touchend", onTouchEnd);
 
-  document.addEventListener('keydown', escHandler);
+  document.addEventListener("keydown", escHandler);
 };
 
 const closePreview = () => {
   if (!previewOverlayEl) return;
 
-  previewOverlayEl.classList.add('fade-out');
+  previewOverlayEl.classList.add("fade-out");
   setTimeout(() => {
     previewOverlayEl?.remove();
     previewOverlayEl = null;
@@ -818,11 +603,11 @@ const closePreview = () => {
     currentScale = 1;
   }, 200);
 
-  document.removeEventListener('keydown', escHandler);
+  document.removeEventListener("keydown", escHandler);
 };
 
 const escHandler = (e) => {
-  if (e.key === 'Escape') {
+  if (e.key === "Escape") {
     closePreview();
   }
 };
@@ -833,8 +618,7 @@ const onTouchStart = (e) => {
   if (e.touches.length === 1) {
     touchStartX = e.touches[0].clientX;
     touchDeltaX = 0;
-  } 
-  else if (e.touches.length === 2) {
+  } else if (e.touches.length === 2) {
     e.preventDefault();
 
     const [t1, t2] = e.touches;
@@ -854,13 +638,12 @@ const onTouchStart = (e) => {
     // 记录初始距离
     pinchInitialDistance = Math.hypot(
       t1.clientX - t2.clientX,
-      t1.clientY - t2.clientY
+      t1.clientY - t2.clientY,
     );
 
     pinchBaseScale = currentScale;
   }
 };
-
 
 const onTouchMove = (e) => {
   if (!previewImgEl) return;
@@ -869,16 +652,12 @@ const onTouchMove = (e) => {
     const x = e.touches[0].clientX;
     touchDeltaX = x - touchStartX;
     previewImgEl.style.transform = `translate(${touchDeltaX}px, 0) scale(${currentScale})`;
-  } 
-  else if (e.touches.length === 2) {
+  } else if (e.touches.length === 2) {
     e.preventDefault();
 
     const [t1, t2] = e.touches;
 
-    const dist = Math.hypot(
-      t1.clientX - t2.clientX,
-      t1.clientY - t2.clientY
-    );
+    const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
 
     if (!pinchInitialDistance) return;
 
@@ -889,7 +668,6 @@ const onTouchMove = (e) => {
     previewImgEl.style.transform = `translate(0,0) scale(${currentScale})`;
   }
 };
-
 
 const onTouchEnd = (e) => {
   if (!previewImgEl) return;
@@ -929,31 +707,23 @@ const showPrevImage = () => {
    ============================================================ */
 
 const renderedContent = computed(() => {
-  let content = docData.value.body || '';
-  if (!content) return '';
+  let content = docData.value.body || "";
+  if (!content) return "";
 
   try {
     content = processTemplateVariables(content);
-    
-    let renderedMd = '';
+
+    let renderedMd = "";
     try {
       renderedMd = md.render(content);
-
     } catch (mdError) {
-
-      console.error('Markdown渲染失败:', mdError);
+      console.error("Markdown渲染失败:", mdError);
 
       renderedMd = content;
-      
     }
 
-
-
-    if (isComplexHtml(content) || isComplexHtml(renderedMd)) {     
-
+    if (isComplexHtml(content) || isComplexHtml(renderedMd)) {
       let processedContent = renderedMd;
-
-
 
       const styleTagRegex = /<style[\s\S]*?<\/style>/gi;
 
@@ -962,16 +732,11 @@ const renderedContent = computed(() => {
       let match;
 
       while ((match = styleTagRegex.exec(content)) !== null) {
-
         styleMatches.push(match[0]);
-
       }
 
-      
-
       nextTick(() => {
-
-        const scriptElement = document.createElement('script');
+        const scriptElement = document.createElement("script");
 
         scriptElement.innerHTML = `
 
@@ -1147,62 +912,63 @@ const renderedContent = computed(() => {
 
         document.head.appendChild(scriptElement);
 
-        
-
-        document.addEventListener('eztheme-toast', function(e) {
-
+        document.addEventListener("eztheme-toast", function (e) {
           if (e.detail && e.detail.message) {
-
             if (window.showToast) {
+              window.showToast(e.detail.message, e.detail.type || "success");
+            } else if (window.$toast) {
+              const type = e.detail.type || "success";
 
-              window.showToast(e.detail.message, e.detail.type || 'success');
-
-            } 
-
-            else if (window.$toast) {
-
-              const type = e.detail.type || 'success';
-
-              if (typeof window.$toast[type] === 'function') {
-
+              if (typeof window.$toast[type] === "function") {
                 window.$toast[type](e.detail.message);
-
               }
-
             }
-
           }
-
         });
 
-        
-
-        const docBody = document.querySelector('.doc-body');
+        const docBody = document.querySelector(".doc-body");
 
         if (docBody) {
+          docBody.removeEventListener("click", handleDocClick);
 
-          docBody.removeEventListener('click', handleDocClick);
-
-          docBody.addEventListener('click', handleDocClick);
-
+          docBody.addEventListener("click", handleDocClick);
         }
-
       });
 
-      
-
       processedContent = DOMPurify.sanitize(processedContent, {
-
-        ADD_TAGS: ['script', 'style', 'link', 'button', 'a', 'img', 'iframe', 'div', 'span'],
+        ADD_TAGS: [
+          "script",
+          "style",
+          "link",
+          "button",
+          "a",
+          "img",
+          "iframe",
+          "div",
+          "span",
+        ],
 
         ADD_ATTR: [
+          "onclick",
+          "class",
+          "style",
+          "type",
+          "rel",
+          "href",
+          "target",
 
-          'onclick', 'class', 'style', 'type', 'rel', 'href', 'target', 
+          "src",
+          "alt",
+          "title",
+          "width",
+          "height",
+          "frameborder",
+          "allowfullscreen",
 
-          'src', 'alt', 'title', 'width', 'height', 'frameborder', 'allowfullscreen',
-
-          'data-original-onclick', 'data-href', 'data-target', 'data-*'
-
+          "data-original-onclick",
+          "data-href",
+          "data-target",
+          "data-*",
         ],
 
         ALLOW_DATA_ATTR: true,
@@ -1217,315 +983,225 @@ const renderedContent = computed(() => {
 
         ALLOW_UNKNOWN_PROTOCOLS: true,
 
-        ALLOW_ARIA_ATTR: true
-
+        ALLOW_ARIA_ATTR: true,
       });
 
-      
-
       if (styleMatches.length > 0) {
-
-        const tempDiv = document.createElement('div');
+        const tempDiv = document.createElement("div");
 
         tempDiv.innerHTML = processedContent;
 
-        styleMatches.forEach(styleTag => {
-
-          tempDiv.insertAdjacentHTML('beforeend', styleTag);
-
+        styleMatches.forEach((styleTag) => {
+          tempDiv.insertAdjacentHTML("beforeend", styleTag);
         });
 
         processedContent = tempDiv.innerHTML;
-
       }
 
-      
-
-      const tempDiv = document.createElement('div');
+      const tempDiv = document.createElement("div");
 
       tempDiv.innerHTML = processedContent;
 
-      
+      const buttons = tempDiv.querySelectorAll("button");
 
-      const buttons = tempDiv.querySelectorAll('button');
-
-      buttons.forEach(button => {
-
-        if (!button.classList.contains('eztheme-btn')) {
-
-          button.classList.add('eztheme-btn');
-
+      buttons.forEach((button) => {
+        if (!button.classList.contains("eztheme-btn")) {
+          button.classList.add("eztheme-btn");
         }
-
-        
 
         const buttonText = button.textContent.trim().toLowerCase();
+        const copyKeyword = t("common.copy").toLowerCase();
 
-        if ((buttonText.includes('复制') || buttonText.includes('copy')) && 
-
-            !button.hasAttribute('onclick')) {
-
-          button.setAttribute('onclick', "copy('{{subscribeUrl}}')");
-
+        if (
+          (buttonText.includes(copyKeyword) || buttonText.includes("copy")) &&
+          !button.hasAttribute("onclick")
+        ) {
+          button.setAttribute("onclick", "copy('{{subscribeUrl}}')");
         }
 
-        
-
-        if (button.hasAttribute('href')) {
-
-          button.setAttribute('data-href', button.getAttribute('href'));
-
+        if (button.hasAttribute("href")) {
+          button.setAttribute("data-href", button.getAttribute("href"));
         }
 
-        
+        const childLink = button.querySelector("a");
 
-        const childLink = button.querySelector('a');
+        if (childLink && childLink.hasAttribute("href")) {
+          button.setAttribute("data-href", childLink.getAttribute("href"));
 
-        if (childLink && childLink.hasAttribute('href')) {
-
-          button.setAttribute('data-href', childLink.getAttribute('href'));
-
-          if (childLink.hasAttribute('target')) {
-
-            button.setAttribute('data-target', childLink.getAttribute('target'));
-
+          if (childLink.hasAttribute("target")) {
+            button.setAttribute(
+              "data-target",
+              childLink.getAttribute("target"),
+            );
           }
-
         }
-
       });
 
-      
+      const links = tempDiv.querySelectorAll("a");
+      const copyKeyword = t("common.copy").toLowerCase();
+      const subscribeKeyword = t("docs.subscribe").toLowerCase();
 
-      const links = tempDiv.querySelectorAll('a');
-
-      links.forEach(link => {
-
-        if (link.textContent.trim().toLowerCase().includes('复制') || 
-
-            link.textContent.trim().toLowerCase().includes('订阅') || 
-
-            link.textContent.trim().toLowerCase().includes('copy')) {
-
-          link.classList.add('eztheme-btn');
-
+      links.forEach((link) => {
+        if (
+          link.textContent.trim().toLowerCase().includes(copyKeyword) ||
+          link.textContent.trim().toLowerCase().includes(subscribeKeyword) ||
+          link.textContent.trim().toLowerCase().includes("copy")
+        ) {
+          link.classList.add("eztheme-btn");
         }
-
       });
-
-      
 
       // 3) 检测并替换 v2board-no-access 块为美化卡片
-      const noAccessEls = tempDiv.querySelectorAll('.v2board-no-access');
+      const noAccessEls = tempDiv.querySelectorAll(".v2board-no-access");
       if (noAccessEls && noAccessEls.length > 0) {
         const cardHtml = buildNoAccessCardHtml();
-        noAccessEls.forEach(el => {
+        noAccessEls.forEach((el) => {
           el.outerHTML = cardHtml;
         });
       }
 
       return tempDiv.innerHTML;
-
     } else {
-
       return renderedMd;
-
     }
-
   } catch (err) {
+    console.error("Error processing content:", err);
 
-    console.error('Error processing content:', err);
-    
-    return `<p class="error-message">${t('docs.contentFormatError')}</p>`;
-
+    return `<p class="error-message">${t("docs.contentFormatError")}</p>`;
   }
-
 });
 
-
-
 const formatDate = (timestamp) => {
-
   const date = new Date(timestamp * 1000);
 
-  return date.toLocaleDateString(locale.value === 'zh-CN' ? 'zh-CN' : 'en-US', {
+  return date.toLocaleDateString(locale.value === "zh-CN" ? "zh-CN" : "en-US", {
+    year: "numeric",
 
-    year: 'numeric',
+    month: "short",
 
-    month: 'short',
-
-    day: 'numeric'
-
+    day: "numeric",
   });
-
 };
 
-
-
 const fetchDocDetail = async () => {
-
   const docId = route.params.id;
 
-  
-
   if (!docId) {
-
-    error.value = t('docs.invalidDocId');
+    error.value = t("docs.invalidDocId");
 
     loading.value = false;
 
     return;
-
   }
-
-  
 
   loading.value = true;
 
-  error.value = '';
-
-
+  error.value = "";
 
   try {
-
     const result = await fetchKnowledgeDetail(docId, locale.value);
 
-    
-
     if (result && result.data) {
-
       docData.value = result.data;
 
-      
-
       if (!docData.value.body && docData.value.content) {
-
         docData.value.body = docData.value.content;
-
       }
-
     } else {
-
-      throw new Error(t('docs.docNotFound'));
-
+      throw new Error(t("docs.docNotFound"));
     }
-
   } catch (err) {
+    console.error("Failed to fetch document detail:", err);
 
-    console.error('Failed to fetch document detail:', err);
-
-    error.value = err && err.message ? err.message : t('docs.unknownError');
-
-    
+    error.value = err && err.message ? err.message : t("docs.unknownError");
 
     if ($toast) {
-
       $toast.error(error.value);
-
     }
-
   } finally {
-
     loading.value = false;
   }
 };
 
 // ⭐ 自动给每张图片和视频包裹一个容器
 const wrapMedia = () => {
-  document.querySelectorAll('[aria-label="img-pc"] img, [aria-label="video"] video')
-    .forEach(el => {
-      if (!el.parentElement.classList.contains('media-item')) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'media-item';
+  document
+    .querySelectorAll('[aria-label="img-pc"] img, [aria-label="video"] video')
+    .forEach((el) => {
+      if (!el.parentElement.classList.contains("media-item")) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "media-item";
         el.parentNode.insertBefore(wrapper, el);
         wrapper.appendChild(el);
+
+        const hint = document.createElement("span");
+        hint.className = "media-hint";
+        hint.textContent = t("docs.imageClickToZoom");
+        wrapper.appendChild(hint);
       }
     });
 };
 
 // ⭐ 自动识别多图组（你已有的）
 const setupMediaGroupHints = () => {
-  const groups = document.querySelectorAll('[aria-label="img-pc"], [aria-label="video"]');
-  groups.forEach(group => {
-    const media = group.querySelectorAll('img, video');
-    group.classList.remove('has-multiple');
-    if (media.length > 1) group.classList.add('has-multiple');
+  const groups = document.querySelectorAll(
+    '[aria-label="img-pc"], [aria-label="video"]',
+  );
+  groups.forEach((group) => {
+    const media = group.querySelectorAll("img, video");
+    group.classList.remove("has-multiple");
+    if (media.length > 1) group.classList.add("has-multiple");
   });
 };
 
 // ⭐ 关键：执行顺序必须是 wrapMedia → setupMediaGroupHints → setupImagePreview
 watch(renderedContent, () => {
   nextTick(() => {
-    wrapMedia();              // ⭐ 必须最先执行
-    setupMediaGroupHints();   // ⭐ 第二步
-    setupImagePreview();      // ⭐ 最后执行
+    wrapMedia(); // ⭐ 必须最先执行
+    setupMediaGroupHints(); // ⭐ 第二步
+    setupImagePreview(); // ⭐ 最后执行
   });
 });
 
-
-
 onMounted(() => {
-
   fetchDocDetail();
-  document.addEventListener('click', handleGlobalClick);
+  document.addEventListener("click", handleGlobalClick);
 });
-
-
 
 onUnmounted(() => {
-
-  const docBody = window.document.querySelector('.doc-body');
+  const docBody = window.document.querySelector(".doc-body");
 
   if (docBody) {
-
-    docBody.removeEventListener('click', handleDocClick);
-
+    docBody.removeEventListener("click", handleDocClick);
   }
-  document.removeEventListener('click', handleGlobalClick);
+  document.removeEventListener("click", handleGlobalClick);
   // ⭐ 新增：卸载时确保 ESC 监听移除
-  document.removeEventListener('keydown', escHandler);
+  document.removeEventListener("keydown", escHandler);
 });
-
 </script>
 
-
-
 <style lang="scss" scoped>
-
 .doc-detail-container {
-
   padding: 1.25rem;
 
-  padding-bottom: calc(1.25rem + 64px); 
-
-  
+  padding-bottom: calc(1.25rem + 64px);
 
   @media (min-width: 768px) {
-
     padding: 2rem;
 
-    padding-bottom: 3rem; 
-
+    padding-bottom: 3rem;
   }
-
 }
 
-
-
 .doc-detail-inner {
-
-  max-width: 1200px; 
+  max-width: 1200px;
 
   margin: 0 auto;
 
   width: 100%;
-
 }
 
-
-
 .back-button {
-
   display: inline-flex;
 
   align-items: center;
@@ -1548,38 +1224,22 @@ onUnmounted(() => {
 
   transition: all 0.3s ease;
 
-  
-
   &:hover {
-
     background-color: rgba(var(--theme-color-rgb), 0.1);
 
     transform: translateX(-3px);
-
   }
-
-  
 
   &:active {
-
     transform: translateX(0);
-
   }
-
-  
 
   span {
-
     margin-left: 0.5rem;
-
   }
-
 }
 
-
-
 .doc-loading {
-
   display: flex;
 
   flex-direction: column;
@@ -1592,26 +1252,16 @@ onUnmounted(() => {
 
   text-align: center;
 
-  
-
   p {
-
     margin-top: 1rem;
 
     color: var(--text-muted);
 
     font-size: 1.1rem;
-
   }
-
 }
 
-
-
-
-
 .doc-error {
-
   display: flex;
 
   flex-direction: column;
@@ -1624,10 +1274,7 @@ onUnmounted(() => {
 
   text-align: center;
 
-  
-
   .error-card {
-
     width: 100%;
 
     max-width: 400px;
@@ -1650,34 +1297,22 @@ onUnmounted(() => {
 
     align-items: center;
 
-    
-
     @keyframes errorAppear {
-
       from {
-
         opacity: 0;
 
         transform: translateY(20px);
-
       }
 
       to {
-
         opacity: 1;
 
         transform: translateY(0);
-
       }
-
     }
-
   }
 
-  
-
   .error-icon-wrapper {
-
     display: flex;
 
     align-items: center;
@@ -1694,20 +1329,12 @@ onUnmounted(() => {
 
     margin-bottom: 1.5rem;
 
-    
-
     .error-icon {
-
       color: #ff4c51;
-
     }
-
   }
 
-  
-
   .error-title {
-
     font-size: 1.4rem;
 
     font-weight: 600;
@@ -1715,13 +1342,9 @@ onUnmounted(() => {
     margin-bottom: 0.75rem;
 
     color: var(--text-color);
-
   }
 
-  
-
   .error-message {
-
     color: var(--text-muted);
 
     font-size: 1rem;
@@ -1729,17 +1352,10 @@ onUnmounted(() => {
     margin-bottom: 1.5rem;
 
     line-height: 1.6;
-
   }
-
 }
 
-
-
-
-
 .retry-button {
-
   display: inline-flex;
 
   align-items: center;
@@ -1750,7 +1366,11 @@ onUnmounted(() => {
 
   border-radius: 30px;
 
-  background: linear-gradient(135deg, var(--theme-color), var(--theme-color-dark));
+  background: linear-gradient(
+    135deg,
+    var(--theme-color),
+    var(--theme-color-dark)
+  );
 
   color: white;
 
@@ -1766,56 +1386,32 @@ onUnmounted(() => {
 
   box-shadow: 0 4px 12px rgba(var(--theme-color-rgb), 0.3);
 
-  
-
   .retry-text {
-
     margin-right: 0.5rem;
-
   }
-
-  
 
   .retry-icon {
-
     transition: transform 0.4s ease;
-
   }
 
-  
-
   &:hover {
-
     transform: translateY(-3px);
 
     box-shadow: 0 6px 16px rgba(var(--theme-color-rgb), 0.4);
 
-    
-
     .retry-icon {
-
       transform: rotate(180deg);
-
     }
-
   }
 
-  
-
   &:active {
-
     transform: translateY(-1px);
 
     box-shadow: 0 3px 8px rgba(var(--theme-color-rgb), 0.3);
-
   }
-
 }
 
-
-
 .doc-content {
-
   background-color: var(--card-bg);
 
   border-radius: 16px;
@@ -1830,40 +1426,25 @@ onUnmounted(() => {
 
   width: 100%;
 
-  
-
   @media (min-width: 768px) {
-
     padding: 2rem;
-
   }
 
-  
-
   &:hover {
-
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 
     border-color: rgba(var(--theme-color-rgb), 0.2);
-
   }
-
 }
 
-
-
 .doc-header {
-
   margin-bottom: 2rem;
 
   padding-bottom: 1.25rem;
 
   border-bottom: 1px solid rgba(var(--theme-color-rgb), 0.1);
 
-  
-
   .doc-title {
-
     font-size: 1.6rem;
 
     font-weight: 700;
@@ -1874,20 +1455,12 @@ onUnmounted(() => {
 
     line-height: 1.3;
 
-    
-
     @media (min-width: 768px) {
-
       font-size: 1.8rem;
-
     }
-
   }
 
-  
-
   .doc-meta {
-
     display: flex;
 
     flex-wrap: wrap;
@@ -1898,10 +1471,7 @@ onUnmounted(() => {
 
     color: var(--text-muted);
 
-    
-
     .doc-category {
-
       padding: 0.3rem 0.7rem;
 
       background-color: rgba(var(--theme-color-rgb), 0.1);
@@ -1914,44 +1484,32 @@ onUnmounted(() => {
 
       transition: all 0.3s ease;
 
-      
-
       &:hover {
-
         background-color: rgba(var(--theme-color-rgb), 0.2);
-
       }
-
     }
 
-    
-
     .doc-date {
-
       display: flex;
 
       align-items: center;
-
     }
-
   }
-
 }
 
-
-
 .doc-body {
-
   color: var(--text-color);
 
   font-size: 1.2rem;
 
   line-height: 1.8;
 
-  
-
-  :deep(h1), :deep(h2), :deep(h3), :deep(h4), :deep(h5), :deep(h6) {
-
+  :deep(h1),
+  :deep(h2),
+  :deep(h3),
+  :deep(h4),
+  :deep(h5),
+  :deep(h6) {
     margin-top: 2rem;
 
     margin-bottom: 1.2rem;
@@ -1965,13 +1523,9 @@ onUnmounted(() => {
     position: relative;
 
     transition: color 0.2s ease;
-
   }
 
-  
-
   :deep(h1) {
-
     font-size: 2.2rem;
 
     margin-top: 2.8rem;
@@ -1979,13 +1533,9 @@ onUnmounted(() => {
     padding-bottom: 0.6rem;
 
     border-bottom: 1px solid var(--border-color);
-
   }
 
-  
-
   :deep(h2) {
-
     font-size: 1.8rem;
 
     padding-bottom: 0.5rem;
@@ -1993,141 +1543,82 @@ onUnmounted(() => {
     margin-top: 2.2rem;
 
     border-bottom: 1px solid var(--border-color);
-
   }
 
-  
-
   :deep(h3) {
-
     font-size: 1.5rem;
 
     margin-top: 1.8rem;
-
   }
 
-  
-
   :deep(h4) {
-
     font-size: 1.25rem;
 
     color: var(--primary-text-color);
-
   }
 
-  
-
   :deep(h5) {
-
     font-size: 1.1rem;
 
     color: var(--primary-text-color);
-
   }
 
-  
-
   :deep(h6) {
-
     font-size: 1rem;
 
     color: var(--text-muted);
 
     font-weight: 500;
-
   }
 
-  
-
   :deep(p) {
-
     margin-bottom: 1.4rem;
 
     letter-spacing: 0.01rem;
-
   }
 
-  
-
-  :deep(ul), :deep(ol) {
-
+  :deep(ul),
+  :deep(ol) {
     margin-bottom: 1.4rem;
 
     padding-left: 1.8rem;
 
-    
-
     li {
-
       margin-bottom: 0.8rem;
 
       position: relative;
 
-      
-
       &:last-child {
-
         margin-bottom: 0;
-
       }
-
     }
-
   }
-
-  
 
   :deep(ul li) {
-
     list-style-type: disc;
 
-    
-
     & > ul > li {
-
       list-style-type: circle;
 
-      
-
       & > ul > li {
-
         list-style-type: square;
-
       }
-
     }
-
   }
-
-  
 
   :deep(ol li) {
-
     list-style-type: decimal;
 
-    
-
     & > ol > li {
-
       list-style-type: lower-alpha;
 
-      
-
       & > ol > li {
-
         list-style-type: lower-roman;
-
       }
-
     }
-
   }
 
-  
-
   :deep(img) {
-
     max-width: 100%;
 
     border-radius: 6px;
@@ -2142,27 +1633,17 @@ onUnmounted(() => {
 
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
-    
-
     &:hover {
-
       transform: scale(1.01);
 
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
       border-color: var(--theme-color);
-
     }
-
   }
 
-  
-
-  
-
   :deep(code) {
-
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 
     background-color: var(--code-bg);
 
@@ -2179,13 +1660,9 @@ onUnmounted(() => {
     transition: background-color 0.2s ease;
 
     margin: 0 2px;
-
   }
 
-  
-
   :deep(pre) {
-
     background-color: var(--code-bg);
 
     padding: 1.2rem;
@@ -2204,20 +1681,13 @@ onUnmounted(() => {
 
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
-    
-
     &:hover {
-
       border-color: var(--theme-color);
 
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-
     }
 
-    
-
     code {
-
       background: none;
 
       padding: 0;
@@ -2231,17 +1701,10 @@ onUnmounted(() => {
       line-height: 1.6;
 
       text-shadow: none;
-
     }
-
   }
 
-  
-
-  
-
   :deep(a:not(.eztheme-btn)) {
-
     color: rgba(var(--theme-color-rgb), 1);
 
     text-decoration: none;
@@ -2250,22 +1713,12 @@ onUnmounted(() => {
 
     font-weight: 500;
 
-    
-
     &:hover {
-
       color: rgba(var(--theme-color-rgb), 0.8);
-
     }
-
   }
 
-  
-
-  
-
   :deep(blockquote) {
-
     border-left: 4px solid var(--theme-color);
 
     margin-left: 0;
@@ -2288,38 +1741,20 @@ onUnmounted(() => {
 
     transition: background-color 0.2s ease, border-left-color 0.2s ease;
 
-    
-
     &:hover {
-
       background-color: rgba(var(--theme-color-rgb), 0.08);
-
     }
-
-    
 
     p {
-
       margin-bottom: 0.8rem;
 
-      
-
       &:last-child {
-
         margin-bottom: 0;
-
       }
-
     }
-
   }
 
-  
-
-  
-
   :deep(table) {
-
     width: 100%;
 
     border-collapse: separate;
@@ -2340,94 +1775,53 @@ onUnmounted(() => {
 
     transition: box-shadow 0.2s ease, border-color 0.2s ease;
 
-    
-
     &:hover {
-
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 
       border-color: rgba(var(--theme-color-rgb), 0.2);
-
     }
-
-    
 
     @media (min-width: 768px) {
-
       display: table;
-
     }
-
-    
 
     thead {
-
       background-color: rgba(var(--theme-color-rgb), 0.05);
 
-      
-
       tr {
-
         border-bottom: 2px solid var(--border-color);
-
       }
-
     }
 
-    
-
-    th, td {
-
+    th,
+    td {
       padding: 0.8rem 1rem;
 
       border: 1px solid var(--border-color);
 
       text-align: left;
-
     }
 
-    
-
     th {
-
       font-weight: 600;
 
       color: var(--primary-text-color);
-
     }
-
-    
 
     tr {
-
       transition: background-color 0.2s ease;
 
-      
-
       &:nth-child(even) {
-
         background-color: rgba(var(--hover-bg-rgb), 0.3);
-
       }
-
-      
 
       &:hover {
-
         background-color: rgba(var(--theme-color-rgb), 0.05);
-
       }
-
     }
-
   }
 
-  
-
-  
-
   :deep(hr) {
-
     height: 1px;
 
     border: none;
@@ -2435,45 +1829,23 @@ onUnmounted(() => {
     background-color: var(--border-color);
 
     margin: 2rem 0;
-
   }
 
-  
-
-  
-
   :deep(strong) {
-
     font-weight: 600;
 
     color: var(--primary-text-color);
-
   }
-
-  
 
   :deep(em) {
-
     font-style: italic;
-
   }
-
-  
-
-  
 
   :deep(input[type="checkbox"]) {
-
     margin-right: 0.5rem;
-
   }
 
-  
-
-  
-
   :deep(.footnotes) {
-
     margin-top: 2rem;
 
     padding-top: 1rem;
@@ -2483,15 +1855,9 @@ onUnmounted(() => {
     font-size: 0.9rem;
 
     color: var(--text-muted);
-
   }
 
-  
-
-  
-
   :deep(.access-content) {
-
     margin: 2rem 0;
 
     padding: 1.5rem;
@@ -2510,21 +1876,14 @@ onUnmounted(() => {
 
     transition: box-shadow 0.2s ease, border-color 0.2s ease;
 
-    
-
     &:hover {
-
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 
       border-color: rgba(var(--theme-color-rgb), 0.3);
-
     }
 
-    
-
     &::before {
-
-      content: '特别内容';
+      content: "特别内容";
 
       position: absolute;
 
@@ -2543,11 +1902,9 @@ onUnmounted(() => {
       border-radius: 20px;
 
       font-weight: 500;
-
     }
-
   }
-  
+
   :deep(.tutorial-section) {
     padding: 10px 5px 10px 5px; /* 增加内边距，让内容更具呼吸感 */
     margin: 40px 0px 40px 0px; /* 段落间距 */
@@ -2626,13 +1983,13 @@ onUnmounted(() => {
     margin-top: 10px;
   }
 
-    /* 正文段落样式调整 */
-    :deep(.tutorial-section p) {
-      font-size: 1.2rem;
-      line-height: 2;
-      color: var(--text-color);
-      margin: 10px 0;
-    }
+  /* 正文段落样式调整 */
+  :deep(.tutorial-section p) {
+    font-size: 1.2rem;
+    line-height: 2;
+    color: var(--text-color);
+    margin: 10px 0;
+  }
 
   :deep(.tutorial-section div[aria-label="section"]) {
     margin-bottom: 48px;
@@ -2745,31 +2102,29 @@ onUnmounted(() => {
    ⭐ 新增：移动端按钮防止超出屏幕（最终方案）
    ============================================ */
   @media (max-width: 768px) {
-  :deep(.tutorial-section div[aria-label="buttonGroup"]) {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
+    :deep(.tutorial-section div[aria-label="buttonGroup"]) {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
 
-  :deep(.tutorial-section div[aria-label="buttonGroup"] > *) {
-    flex: 1 1 100%;
-    margin-right: 0 !important;
-    text-align: center;
-    box-sizing: border-box;
-  }
+    :deep(.tutorial-section div[aria-label="buttonGroup"] > *) {
+      flex: 1 1 100%;
+      margin-right: 0 !important;
+      text-align: center;
+      box-sizing: border-box;
+    }
 
-  /* ⭐ 关键：按钮本身的宽度与换行控制 */
-  :deep(.tutorial-section span[aria-label="button"]),
-  :deep(.tutorial-section span[aria-label="buttonSecondary"]) {
-    width: 100% !important;        /* ⭐ 按钮占满整行 */
-    max-width: 100% !important;    /* ⭐ 防止超出容器 */
-    white-space: normal !important;/* ⭐ 允许换行 */
-    word-break: break-word;        /* ⭐ 长词也能换行 */
-    padding: 12px 16px;            /* ⭐ 缩小左右 padding */
-    box-sizing: border-box;
+    /* ⭐ 关键：按钮本身的宽度与换行控制 */
+    :deep(.tutorial-section span[aria-label="button"]),
+    :deep(.tutorial-section span[aria-label="buttonSecondary"]) {
+      width: 100% !important; /* ⭐ 按钮占满整行 */
+      max-width: 100% !important; /* ⭐ 防止超出容器 */
+      white-space: normal !important; /* ⭐ 允许换行 */
+      word-break: break-word; /* ⭐ 长词也能换行 */
+      padding: 12px 16px; /* ⭐ 缩小左右 padding */
+      box-sizing: border-box;
+    }
   }
-  }
-
-
 
   :deep(.tutorial-section span[aria-label="button"]) {
     width: -moz-max-content;
@@ -2832,7 +2187,7 @@ onUnmounted(() => {
     box-sizing: border-box; /* 包含边框和内边距 */
     transition: transform 0.3s ease-in-out;
   }
-    /* ============================
+  /* ============================
      ⭐ 新增：移动端适配 account-card
      ============================ */
   @media (max-width: 768px) {
@@ -2843,7 +2198,6 @@ onUnmounted(() => {
       word-break: break-word;
     }
   }
-
 
   /* 标题样式 */
   :deep(.tutorial-section .account-card h4) {
@@ -2861,22 +2215,15 @@ onUnmounted(() => {
     font-size: 1rem;
     color: #666; /* 使用更柔和的字体颜色 */
   }
-
 }
-
 </style>
-
-
 
 <!-- 全局样式，不受scoped限制 -->
 
 <style lang="scss">
-@use '@/assets/styles/no-plan-card' as *;
-
-
+@use "@/assets/styles/no-plan-card" as *;
 
 .eztheme-btn {
-
   display: inline-flex !important;
 
   align-items: center !important;
@@ -2925,24 +2272,20 @@ onUnmounted(() => {
 
   overflow: visible !important;
 
-  
-
-  
-
-  i, .icon, svg {
-
+  i,
+  .icon,
+  svg {
     margin-right: 6px !important;
 
     display: inline-flex !important;
 
     vertical-align: middle !important;
-
   }
 
-  
-
-  &:hover, &:active, &:focus, &:visited {
-
+  &:hover,
+  &:active,
+  &:focus,
+  &:visited {
     background-color: rgba(var(--theme-color-rgb), 0.2) !important;
 
     transform: translateY(-1px) !important;
@@ -2956,37 +2299,22 @@ onUnmounted(() => {
     color: var(--theme-color) !important;
 
     border-color: transparent !important;
-
   }
 
-  
-
   &:active {
-
     transform: translateY(0) !important;
 
     box-shadow: none !important;
-
   }
 
-  
-
   &:focus {
-
     outline: none !important;
 
     box-shadow: 0 0 0 2px rgba(var(--theme-color-rgb), 0.3) !important;
-
   }
-
 }
 
-
-
-
-
 a.eztheme-btn {
-
   background-image: none !important;
 
   background-repeat: no-repeat !important;
@@ -2999,16 +2327,12 @@ a.eztheme-btn {
 
   border-bottom: none !important;
 
-  
-
-  &::after, &::before {
-
+  &::after,
+  &::before {
     display: none !important;
 
     content: none !important;
-
   }
-
 }
 /* ============================================================
    ⭐ 新增：全屏图片预览样式（必须放在全局，不受 scoped 限制）
@@ -3018,7 +2342,7 @@ a.eztheme-btn {
   inset: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -3040,13 +2364,21 @@ a.eztheme-btn {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to   { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 /* ============================================================
    ⭐ 图片 + 视频组容器
@@ -3092,8 +2424,8 @@ a.eztheme-btn {
 /* ============================================================
    ⭐ 总数 % 4 == 1（且不止 1 张）→ 最后一张铺满
    ============================================================ */
-[aria-label="img-pc"] .media-item:last-child:nth-child(4n+1):not(:only-child),
-[aria-label="video"] .media-item:last-child:nth-child(4n+1):not(:only-child) {
+[aria-label="img-pc"] .media-item:last-child:nth-child(4n + 1):not(:only-child),
+[aria-label="video"] .media-item:last-child:nth-child(4n + 1):not(:only-child) {
   flex: 0 0 100%;
   max-width: 100%;
 }
@@ -3101,8 +2433,8 @@ a.eztheme-btn {
 /* ============================================================
    ⭐ 总数 % 4 == 3 → 最后一张铺满
    ============================================================ */
-[aria-label="img-pc"] .media-item:last-child:nth-child(4n+3),
-[aria-label="video"] .media-item:last-child:nth-child(4n+3) {
+[aria-label="img-pc"] .media-item:last-child:nth-child(4n + 3),
+[aria-label="video"] .media-item:last-child:nth-child(4n + 3) {
   flex: 0 0 100%;
   max-width: 100%;
 }
@@ -3112,6 +2444,18 @@ a.eztheme-btn {
    ============================================================ */
 .media-item::after {
   content: "图片点击可放大";
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 3px 6px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 12px;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 10;
+}
+.media-hint {
   position: absolute;
   right: 8px;
   bottom: 8px;
@@ -3133,5 +2477,4 @@ a.eztheme-btn {
     max-width: 100% !important;
   }
 }
-
-</style> 
+</style>

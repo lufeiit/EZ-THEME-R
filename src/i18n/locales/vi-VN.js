@@ -132,7 +132,13 @@ export default {
         captchaError: 'Lỗi xác thực, vui lòng thử lại',
         captchaLoading: 'Đang tải thành phần xác thực...',
         verifyTokenSuccess: 'Xác thực token thành công',
-        verifyTokenFailed: 'Xác thực token thất bại, vui lòng thử lại'
+        verifyTokenFailed: 'Xác thực token thất bại, vui lòng thử lại',
+        telegramLogin: 'Đăng nhập Telegram',
+        telegramStep1Text: 'Sao chép lệnh',
+        telegramExpires: 'hết hạn sau',
+        telegramStep2Text: 'Gửi đến',
+        copySuccess: 'Sao chép thành công',
+        copyFailed: 'Sao chép thất bại'
     },
     validation: {
         required: '{field} không được để trống',
@@ -239,7 +245,9 @@ export default {
         manualImportRequired: 'Không thể tự động nhập, vui lòng sao chép liên kết đăng ký thủ công để nhập',
         noSubscription: 'Không có đăng ký khả dụng',
         noClientsAvailable: 'Nền tảng này tạm thời không có cách nhập nhanh khả dụng',
-        clientNotInstalled: 'Bạn chưa cài đặt client tương ứng, đã sao chép liên kết đăng ký vào clipboard'
+        clientNotInstalled: 'Bạn chưa cài đặt client tương ứng, đã sao chép liên kết đăng ký vào clipboard',
+        checkIn: 'Điểm danh',
+        luckyCheckIn: 'Điểm danh may mắn'
     },
     platforms: {
         ios: 'iOS',
@@ -452,6 +460,7 @@ export default {
         sessionError: 'Lấy lịch sử đăng nhập thất bại',
         telegramGroup: 'Nhóm Telegram',
         telegramBot: 'Bot Telegram',
+        unbindTelegram: 'Hủy liên kết Bot Telegram',
         bindTelegram: 'Liên kết Bot Telegram',
         telegramStep1: 'Bước một',
         telegramStep2: 'Bước hai',
@@ -460,7 +469,18 @@ export default {
         commandCopied: 'Lệnh đã được sao chép vào clipboard',
         iKnow: 'Tôi hiểu',
         telegram: 'Liên lạc Telegram',
-        telegramError: 'Lấy thông tin Telegram thất bại'
+        telegramError: 'Lấy thông tin Telegram thất bại',
+        changeEmail: 'Đổi email',
+        oldEmail: 'Email cũ',
+        newEmail: 'Email mới',
+        enterVerificationCode: 'Vui lòng nhập mã xác minh',
+        checkSpamTip: 'Nếu bạn không nhận được email trong thời gian dài, vui lòng kiểm tra thư mục spam',
+        newPasswordSameAsOld: 'Mật khẩu mới không được giống mật khẩu cũ',
+        deleteAccount: 'Xóa tài khoản',
+        delete: 'Xóa',
+        deleteAccountConfirm: 'Việc xóa tài khoản là không thể đảo ngược và tất cả dữ liệu sẽ bị xóa vĩnh viễn. Vui lòng xác nhận lại nếu bạn muốn xóa?',
+        accountDeletedSuccess: 'Tài khoản của bạn đã được xóa thành công'
+
     },
     contextMenu: {
         refresh: 'Làm mới trang',
@@ -540,6 +560,10 @@ export default {
         popup: {
             close_btn: 'Tôi hiểu',
             wait_close_btn: 'Vui lòng đợi {seconds} giây'
+        },
+        plan_selection_tip: {
+            text: 'Để biết thông tin về node, đăng ký, gia hạn, lưu lượng, v.v., hãy nhấp vào đây nếu bạn không chắc chắn',
+            link: 'Xem tại đây'
         }
     },
     order: {
@@ -794,6 +818,8 @@ export default {
         contentFormatError: 'Định dạng nội dung tài liệu lỗi, không thể hiển thị bình thường',
         languageHint: 'Ngôn ngữ hiện tại {currentLang} chưa có tài liệu, vui lòng thử chuyển sang ngôn ngữ khác',
         networkError: 'Lỗi mạng',
+        subscribe: 'Đăng ký',
+        imageClickToZoom: 'Nhấp vào hình ảnh để phóng to',
         welcome: {
             title: 'Trung tâm Tài liệu',
             description: 'Tìm kiếm và đọc tài liệu chi tiết về sử dụng và cấu hình.'

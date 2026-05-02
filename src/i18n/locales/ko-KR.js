@@ -134,7 +134,13 @@ export default {
     captchaError: '인증 오류, 다시 시도하세요',
     captchaLoading: '인증 컴포넌트 로딩 중...',
     verifyTokenSuccess: '토큰 인증 성공',
-    verifyTokenFailed: '토큰 인증 실패, 다시 시도하세요'
+    verifyTokenFailed: '토큰 인증 실패, 다시 시도하세요',
+    telegramLogin: 'Telegram 로그인',
+    telegramStep1Text: '명령어 복사',
+    telegramExpires: '후 만료',
+    telegramStep2Text: '보내기',
+    copySuccess: '복사 성공',
+    copyFailed: '복사 실패'
   },
   validation: {
     required: '{field}은(는) 필수 입력 항목입니다',
@@ -230,7 +236,9 @@ export default {
     manualImportRequired: '자동 가져오기가 불가능합니다. 구독 링크를 수동으로 복사하여 가져오세요',
     noSubscription: '사용 가능한 구독 없음',
     noClientsAvailable: '이 플랫폼은 빠른 가져오기 방법을 지원하지 않습니다',
-    clientNotInstalled: '해당 클라이언트가 설치되어 있지 않습니다. 구독 링크를 클립보드에 복사했습니다'
+    clientNotInstalled: '해당 클라이언트가 설치되어 있지 않습니다. 구독 링크를 클립보드에 복사했습니다',
+    checkIn: '출석 체크',
+    luckyCheckIn: '행운 출석 체크'
   },
   platforms: {
     ios: 'iOS',
@@ -455,6 +463,7 @@ export default {
     sessionError: '로그인 기록 가져오기 실패',
     telegramGroup: 'Telegram 커뮤니티',
     telegramBot: 'Telegram 봇',
+    unbindTelegram: '연결 해제 Telegram',
     bindTelegram: 'Telegram 봇 연결',
     telegramStep1: '1단계',
     telegramStep2: '2단계',
@@ -463,7 +472,17 @@ export default {
     commandCopied: '명령이 클립보드에 복사되었습니다',
     iKnow: '알겠습니다',
     telegram: 'Telegram 통신',
-    telegramError: 'Telegram 정보 가져오기 실패'
+    telegramError: 'Telegram 정보 가져오기 실패',
+    changeEmail: '이메일 변경',
+    oldEmail: '이전 이메일',
+    newEmail: '새 이메일',
+    enterVerificationCode: '인증 코드를 입력하세요',
+    checkSpamTip: '이메일을 오랫동안 받지 못한 경우 스팸 폴더를 확인하세요',
+    newPasswordSameAsOld: '새 비밀번호는 이전 비밀번호와 같을 수 없습니다',
+    deleteAccount: '계정 삭제',
+    delete: '삭제',
+    deleteAccountConfirm: '계정 삭제는 되돌릴 수 없으며 모든 데이터가 영구적으로 삭제됩니다. 삭제하시겠습니까?',
+    accountDeletedSuccess: '계정이 성공적으로 삭제되었습니다'
   },
   contextMenu: {
     refresh: '페이지 새로고침',
@@ -543,6 +562,10 @@ export default {
     popup: {
       close_btn: '알겠습니다',
       wait_close_btn: '{seconds}초 기다리세요'
+    },
+    plan_selection_tip: {
+      text: '노드, 구독, 갱신, 트래픽 등에 대한 설명은 여기를 클릭하세요',
+      link: '여기 보기'
     }
   },
   order: {
@@ -795,6 +818,8 @@ export default {
     contentFormatError: '문서 내용 형식이 잘못되어 정상적으로 표시할 수 없습니다',
     languageHint: '현재 언어 {currentLang}에 문서가 없습니다. 다른 언어로 전환해 보세요',
     networkError: '네트워크 오류',
+    subscribe: '구독',
+    imageClickToZoom: '이미지를 클릭하여 확대',
     welcome: {
       title: '문서 센터',
       description: '사용 및 구성에 대한 자세한 문서를 찾아 읽으세요.'

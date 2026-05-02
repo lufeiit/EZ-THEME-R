@@ -108,7 +108,6 @@ export default {
         passwordMatchError: '两次输入的密码不一致',
         captchaSuccess: '人机验证成功',
         captchaFailed: '人机验证失败',
-
         loginNow: '立即登录',
         resetNow: '重置密码',
         alreadyHaveAccount: '已有账户？',
@@ -133,7 +132,13 @@ export default {
         captchaError: '验证出错，请重试',
         captchaLoading: '正在加载验证组件...',
         verifyTokenSuccess: '令牌验证成功',
-        verifyTokenFailed: '令牌验证失败，请重试'
+        verifyTokenFailed: '令牌验证失败，请重试',
+        telegramLogin: 'Telegram 登录',
+        telegramStep1Text: '复制命令',
+        telegramExpires: '后过期',
+        telegramStep2Text: '发送给',
+        copySuccess: '复制成功',
+        copyFailed: '复制失败'
     },
     validation: {
         required: '{field}不能为空',
@@ -233,7 +238,9 @@ export default {
         manualImportRequired: '无法自动导入，请手动复制订阅链接导入',
         noSubscription: '无可用订阅',
         noClientsAvailable: '该平台暂无可用快速导入方式',
-        clientNotInstalled: '您没有安装对应的客户端，已复制订阅链接到剪贴板'
+        clientNotInstalled: '您没有安装对应的客户端，已复制订阅链接到剪贴板',
+        checkIn: '签到',
+        luckyCheckIn: '幸运签到'
     },
     platforms: {
         ios: 'iOS',
@@ -457,6 +464,7 @@ export default {
         sessionError: '获取登录记录失败',
         telegramGroup: 'Telegram 交流群',
         telegramBot: 'Telegram 机器人',
+        unbindTelegram: '解绑 Telegram 机器人',
         bindTelegram: '绑定 Telegram 机器人',
         telegramStep1: '第一步',
         telegramStep2: '第二步',
@@ -465,7 +473,17 @@ export default {
         commandCopied: '指令已复制到剪贴板',
         iKnow: '我知道了',
         telegram: 'Telegram 通信',
-        telegramError: '获取Telegram信息失败'
+        telegramError: '获取Telegram信息失败',
+        changeEmail: '修改邮箱',
+        oldEmail: '原邮箱',
+        newEmail: '新邮箱',
+        enterVerificationCode: '请输入验证码',
+        checkSpamTip: '若长时间未收到邮件请您检查垃圾邮件',
+        newPasswordSameAsOld: '新密码不能和原密码一样',
+        deleteAccount: '删除账户',
+        delete: '删除',
+        deleteAccountConfirm: '删除账户是不可逆操作，所有数据将被彻底移除。请再次确认是否删除？',
+        accountDeletedSuccess: '您的账户已成功删除'
     },
     contextMenu: {
         refresh: '刷新页面',
@@ -545,6 +563,10 @@ export default {
         popup: {
             close_btn: '我知道了',
             wait_close_btn: '请等待 {seconds} 秒'
+        },
+        plan_selection_tip: {
+            text: '订阅相关解释，不清楚的点击这里',
+            link: '看这里'
         }
     },
     order: {
@@ -803,6 +825,8 @@ export default {
         contentFormatError: '教程内容格式错误，无法正常显示',
         languageHint: '当前语言 {currentLang} 暂无教程，请尝试切换到其他语言',
         networkError: '网络错误',
+        subscribe: '订阅',
+        imageClickToZoom: '图片点击可放大',
         welcome: {
             title: '使用教程',
             description: '查找并阅读有关使用和配置的详细教程教程。'

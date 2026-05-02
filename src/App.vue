@@ -23,7 +23,6 @@
             class="coupon-btn"
             id="coupon-btn"
             @click="openCouponModal"
-            title="优惠券"
           >
             <IconTag :size="20" />
           </button>
@@ -43,7 +42,6 @@
             class="coupon-btn"
             id="mobile-coupon-btn"
             @click="openCouponModal"
-            title="优惠券"
           >
             <IconTag :size="20" />
           </button>

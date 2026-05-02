@@ -134,7 +134,13 @@ export default {
     captchaError: '驗證錯誤，請重試',
     captchaLoading: '正在載入驗證元件...',
     verifyTokenSuccess: '令牌驗證成功',
-    verifyTokenFailed: '令牌驗證失敗，請重試'
+    verifyTokenFailed: '令牌驗證失敗，請重試',
+    telegramLogin: 'Telegram 登入',
+    telegramStep1Text: '複製指令',
+    telegramExpires: '後過期',
+    telegramStep2Text: '發送到',
+    copySuccess: '複製成功',
+    copyFailed: '複製失敗'
   },
   validation: {
     required: '{field}不能為空',
@@ -230,7 +236,9 @@ export default {
     manualImportRequired: '無法自動匯入，請手動複製訂閱連結匯入',
     noSubscription: '無可用訂閱',
     noClientsAvailable: '此平台暫無可用快速匯入方式',
-    clientNotInstalled: '您未安裝對應的客戶端，已複製訂閱連結到剪貼簿'
+    clientNotInstalled: '您未安裝對應的客戶端，已複製訂閱連結到剪貼簿',
+    checkIn: '簽到',
+    luckyCheckIn: '運氣簽到'
   },
   platforms: {
     ios: 'iOS',
@@ -453,6 +461,7 @@ export default {
     sessionError: '取得登入記錄失敗',
     telegramGroup: 'Telegram 交流群',
     telegramBot: 'Telegram 機器人',
+    unbindTelegram: '解除綁定 Telegram 機器人',
     bindTelegram: '綁定 Telegram 機器人',
     telegramStep1: '第一步',
     telegramStep2: '第二步',
@@ -461,7 +470,17 @@ export default {
     commandCopied: '指令已複製到剪貼簿',
     iKnow: '我知道了',
     telegram: 'Telegram 通訊',
-    telegramError: '取得Telegram資訊失敗'
+    telegramError: '取得Telegram資訊失敗',
+    changeEmail: '修改郵箱',
+    oldEmail: '原郵箱',
+    newEmail: '新郵箱',
+    enterVerificationCode: '請輸入驗證碼',
+    checkSpamTip: '若長時間未收到郵件請您檢查垃圾郵件',
+    newPasswordSameAsOld: '新密碼不能和原密碼一樣',
+    deleteAccount: '刪除帳戶',
+    delete: '刪除',
+    deleteAccountConfirm: '刪除帳戶是不可逆操作，所有資料將被徹底移除。請再次確認是否刪除？',
+    accountDeletedSuccess: '您的帳戶已成功刪除'
   },
   contextMenu: {
     refresh: '重新整理頁面',
@@ -542,6 +561,10 @@ export default {
       close_btn: '我知道了',
       wait_close_btn: '請等待 {seconds} 秒'
     },
+    plan_selection_tip: {
+      text: '關於訂閱相关的說明，不清楚的點擊這裡',
+      link: '看這裡'
+    }
   },
   order: {
     title: '確認訂單',
@@ -793,6 +816,8 @@ export default {
     contentFormatError: '文件內容格式錯誤，無法正常顯示',
     languageHint: '目前語言 {currentLang} 暫無文件，請嘗試切換到其他語言',
     networkError: '網路錯誤',
+    subscribe: '訂閱',
+    imageClickToZoom: '圖片點擊可放大',
     welcome: {
       title: '文件中心',
       description: '查找並閱讀有關使用與配置的詳細文件。'

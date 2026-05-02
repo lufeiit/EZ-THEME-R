@@ -2,41 +2,41 @@
 import { IconArrowsShuffle2, IconMoodCrazyHappy } from "@tabler/icons-vue";
 import { checkInReq } from "@/api/user";
 import { ref } from "vue";
-import { useToast } from '@/composables/useToast';
+import { useToast } from "@/composables/useToast";
+import { useI18n } from "vue-i18n";
 import LuckyModal from "./LuckyModal.vue";
 
-const emit = defineEmits(['checkinSuccess']);
+const emit = defineEmits(["checkinSuccess"]);
 const { showToast } = useToast();
+const { t } = useI18n();
 
 const loading = ref(false);
 const modalRef = ref(null);
 
 const onLuckyCheckinSuccess = () => {
-  // 传递幸运签到的成功事件给父组件
-  emit('checkinSuccess');
+  emit("checkinSuccess");
 };
 
 const checkin = async (type) => {
-  if(type ==1) {
+  if (type == 1) {
     try {
       loading.value = true;
-      const res = await checkInReq({type})
+      const res = await checkInReq({ type });
       const { message, data } = res;
-      showToast(message, data ? 'success' : 'error', data ? 0 : 3000);
-      
-      // 签到成功后发出事件通知
+      showToast(message, data ? "success" : "error", data ? 0 : 3000);
+
       if (data) {
-        emit('checkinSuccess');
+        emit("checkinSuccess");
       }
     } catch (e) {
-      console.log(e)
+      console.log(e);
     } finally {
       loading.value = false;
     }
-  } else if(type == 2) {
-    modalRef.value?.openModal()
+  } else if (type == 2) {
+    modalRef.value?.openModal();
   }
-}
+};
 </script>
 
 <template>
@@ -44,11 +44,11 @@ const checkin = async (type) => {
     <button class="btn-primary withdraw-btn" @click="checkin(1)">
       <div v-if="loading" class="loader"></div>
       <IconArrowsShuffle2 v-else class="btn-icon" />
-      签到
+      {{ $t("dashboard.checkIn") }}
     </button>
     <!--<button class="btn-primary lucky-checkin" @click="checkin(2)">
       <IconMoodCrazyHappy class="btn-icon" />
-      运气签到
+      {{ $t('dashboard.luckyCheckIn') }}
     </button>-->
 
     <LuckyModal ref="modalRef" @checkin-success="onLuckyCheckinSuccess" />
@@ -58,7 +58,9 @@ const checkin = async (type) => {
 <style scoped lang="scss">
 .checkin-container {
   margin-bottom: 16px;
-  .btn-primary, .btn-outline, .btn-action {
+  .btn-primary,
+  .btn-outline,
+  .btn-action {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -171,7 +173,11 @@ const checkin = async (type) => {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

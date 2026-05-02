@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-card welcome-card">
     <div class="card-header">
-      <h2 class="card-title">{{ $t('shop.title') }}</h2>
+      <h2 class="card-title">{{ $t("shop.title") }}</h2>
       <div class="view-toggle-buttons">
         <button
           class="view-toggle-btn"
@@ -9,25 +9,25 @@
           @click="goToNodes"
         >
           <IconServer :size="18" />
-          <span class="btn-text">查看节点</span>
+          <span class="btn-text">{{ $t("nodes.title") }}</span>
         </button>
       </div>
     </div>
     <div class="card-body">
-      <p>{{ $t('shop.description') }}</p>
+      <p>{{ $t("shop.description") }}</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
-import { IconServer } from '@tabler/icons-vue';
+import { useRouter } from "vue-router";
+import { IconServer } from "@tabler/icons-vue";
 
 const router = useRouter();
 
 // 跳转到节点列表
 const goToNodes = () => {
-  router.push('/nodes');
+  router.push("/nodes");
 };
 </script>
 

@@ -4,7 +4,7 @@
       <div v-if="show" class="shop-popup-overlay" @click.self="closePopup">
         <div class="shop-popup-container">
           <div class="shop-popup-header">
-            <h2 class="popup-title">小火箭下载Apple ID</h2>
+            <h2 class="popup-title">Apple ID</h2>
             <button class="popup-close-btn" @click="closePopup">
               <IconX :size="20" />
             </button>

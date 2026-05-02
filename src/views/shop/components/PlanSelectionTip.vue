@@ -3,7 +3,7 @@
     <div class="tip-content">
       <div class="tip-text-wrapper">
         <IconInfoCircle :size="20" class="tip-icon" />
-        <span class="tip-text">关于节点、订阅、续费、流量等等相关的说明，不清楚的点击这里</span>
+        <span class="tip-text">{{ t("shop.plan_selection_tip.text") }}</span>
       </div>
       <a
         href="#/docs/10"
@@ -12,21 +12,29 @@
         class="tip-link"
       >
         <IconExternalLink :size="16" class="link-icon" />
-        看这里
+        {{ t("shop.plan_selection_tip.link") }}
       </a>
     </div>
   </div>
 </template>
 
 <script>
-import { IconInfoCircle, IconExternalLink } from '@tabler/icons-vue';
+import { useI18n } from "vue-i18n";
+import { IconInfoCircle, IconExternalLink } from "@tabler/icons-vue";
 
 export default {
-  name: 'PlanSelectionTip',
+  name: "PlanSelectionTip",
   components: {
     IconInfoCircle,
-    IconExternalLink
-  }
+    IconExternalLink,
+  },
+  setup() {
+    const { t } = useI18n();
+
+    return {
+      t,
+    };
+  },
 };
 </script>
 

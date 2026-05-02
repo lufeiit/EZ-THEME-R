@@ -133,7 +133,13 @@ export default {
         captchaError: 'Verification error, please try again',
         captchaLoading: 'Loading verification component...',
         verifyTokenSuccess: 'Token verification successful',
-        verifyTokenFailed: 'Token verification failed, please try again'
+        verifyTokenFailed: 'Token verification failed, please try again',
+        telegramLogin: 'Telegram Login',
+        telegramStep1Text: 'Copy command',
+        telegramExpires: 'expires in',
+        telegramStep2Text: 'Send to',
+        copySuccess: 'Copied successfully',
+        copyFailed: 'Copy failed'
     },
     validation: {
         required: '{field} cannot be empty',
@@ -233,7 +239,9 @@ export default {
         manualImportRequired: 'Automatic import not possible, please manually copy the subscription link',
         noSubscription: 'No subscription available',
         noClientsAvailable: 'No quick import methods available for this platform',
-        clientNotInstalled: 'Corresponding client not installed, subscription link copied to clipboard'
+        clientNotInstalled: 'Corresponding client not installed, subscription link copied to clipboard',
+        checkIn: 'Check In',
+        luckyCheckIn: 'Lucky Check In'
     },
     platforms: {
         ios: 'iOS',
@@ -458,6 +466,7 @@ export default {
         sessionError: 'Failed to retrieve login records',
         telegramGroup: 'Telegram Group',
         telegramBot: 'Telegram Bot',
+        unbindTelegram: 'Unbind Telegram Bot',
         bindTelegram: 'Bind Telegram Bot',
         telegramStep1: 'Step 1',
         telegramStep2: 'Step 2',
@@ -466,7 +475,17 @@ export default {
         commandCopied: 'Command copied to clipboard',
         iKnow: 'I Understand',
         telegram: 'Telegram Communication',
-        telegramError: 'Failed to retrieve Telegram information'
+        telegramError: 'Failed to retrieve Telegram information',
+        changeEmail: 'Change Email',
+        oldEmail: 'Old Email',
+        newEmail: 'New Email',
+        enterVerificationCode: 'Please enter verification code',
+        checkSpamTip: 'If you have not received the email for a long time, please check your spam folder',
+        newPasswordSameAsOld: 'New password cannot be the same as the old password',
+        deleteAccount: 'Delete Account',
+        delete: 'Delete',
+        deleteAccountConfirm: 'Deleting an account is irreversible and all data will be permanently removed. Please confirm again if you want to delete?',
+        accountDeletedSuccess: 'Your account has been successfully deleted'
     },
     contextMenu: {
         refresh: 'Refresh Page',
@@ -546,6 +565,10 @@ export default {
         popup: {
             close_btn: 'Got It',
             wait_close_btn: 'Please wait {seconds} seconds'
+        },
+        plan_selection_tip: {
+            text: 'For information subscriptions, renewals, traffic, etc., click here if you\'re unsure',
+            link: 'View Here'
         }
     },
     order: {
@@ -799,6 +822,8 @@ export default {
         contentFormatError: 'Documentation content format error, cannot display properly',
         languageHint: 'No documentation available for current language {currentLang}, please try switching to another language',
         networkError: 'Network error',
+        subscribe: 'Subscribe',
+        imageClickToZoom: 'Click image to zoom',
         welcome: {
             title: 'Documentation Center',
             description: 'Find and read detailed documentation on usage and configuration.'

@@ -134,7 +134,13 @@ export default {
     captchaError: '認証エラー。もう一度お試しください',
     captchaLoading: '認証コンポーネント読み込み中...',
     verifyTokenSuccess: 'トークン認証成功',
-    verifyTokenFailed: 'トークン認証失敗、もう一度お試しください'
+    verifyTokenFailed: 'トークン認証失敗、もう一度お試しください',
+    telegramLogin: 'Telegram ログイン',
+    telegramStep1Text: 'コマンドをコピー',
+    telegramExpires: '後に期限切れ',
+    telegramStep2Text: '送信先',
+    copySuccess: 'コピー成功',
+    copyFailed: 'コピー失敗'
   },
   validation: {
     required: '{field}は必須です',
@@ -230,7 +236,9 @@ export default {
     manualImportRequired: '自動インポート不可。サブスクリプションリンクを手動でコピーしてインポートしてください',
     noSubscription: '利用可能なサブスクリプションなし',
     noClientsAvailable: 'このプラットフォームでは即時インポート方法がありません',
-    clientNotInstalled: '対応クライアントがインストールされていません。サブスクリプションリンクをクリップボードにコピーしました'
+    clientNotInstalled: '対応クライアントがインストールされていません。サブスクリプションリンクをクリップボードにコピーしました',
+    checkIn: 'チェックイン',
+    luckyCheckIn: 'ラッキーチェックイン'
   },
   platforms: {
     ios: 'iOS',
@@ -454,6 +462,7 @@ export default {
     sessionError: 'ログイン記録取得失敗',
     telegramGroup: 'Telegramグループ',
     telegramBot: 'Telegramボット',
+    unbindTelegram: '連携解除 Telegram',
     bindTelegram: 'Telegramボット連携',
     telegramStep1: 'ステップ1',
     telegramStep2: 'ステップ2',
@@ -462,7 +471,17 @@ export default {
     commandCopied: 'コマンドをクリップボードにコピー済み',
     iKnow: '了解',
     telegram: 'Telegram通信',
-    telegramError: 'Telegram情報取得失敗'
+    telegramError: 'Telegram情報取得失敗',
+    changeEmail: 'メールアドレス変更',
+    oldEmail: '元のメールアドレス',
+    newEmail: '新しいメールアドレス',
+    enterVerificationCode: '認証コードを入力してください',
+    checkSpamTip: 'メールが長時間届かない場合は、迷惑メールフォルダを確認してください',
+    newPasswordSameAsOld: '新しいパスワードは古いパスワードと同じにできません',
+    deleteAccount: 'アカウント削除',
+    delete: '削除',
+    deleteAccountConfirm: 'アカウントの削除は元に戻せません。すべてのデータが完全に削除されます。削除してもよろしいですか？',
+    accountDeletedSuccess: 'アカウントが正常に削除されました'
   },
   contextMenu: {
     refresh: 'ページ更新',
@@ -542,6 +561,10 @@ export default {
     popup: {
       close_btn: '了解',
       wait_close_btn: '{seconds}秒お待ちください'
+    },
+    plan_selection_tip: {
+      text: 'ノード、サブスクリプション、更新、トラフィックなどに関する説明については、不明な場合はこちらをクリックしてください',
+      link: 'こちらをご覧ください'
     }
   },
   order: {
@@ -794,6 +817,8 @@ export default {
     contentFormatError: 'ドキュメント内容の形式エラー。正常に表示できません',
     languageHint: '現在の言語 {currentLang} にドキュメントがありません。他の言語に切り替えてください',
     networkError: 'ネットワークエラー',
+    subscribe: '購読',
+    imageClickToZoom: '画像をクリックして拡大',
     welcome: {
       title: 'ドキュメントセンター',
       description: '使用と設定に関する詳細なドキュメントを検索・閲覧'
