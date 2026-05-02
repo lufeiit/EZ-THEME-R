@@ -16,7 +16,7 @@
 
         <div class="card-body">
 
-          <p><h3 style='color: red'>{{ $t('payment.description') }}</h3></p>
+          <h3 style='color: red'>{{ $t('payment.description') }}</h3>
           
 
           <p><strong>{{ $t('payment.description1') }}</strong></p>
