@@ -383,9 +383,9 @@ export default {
       if (userInfo.value) {
         if (typeof userInfo.value === 'object') {
           if (userInfo.value.balance !== undefined) {
-            balance = userInfo.value.balance || 0;
+            balance = (userInfo.value.balance || 0) / 100;
           } else if (userInfo.value.data && userInfo.value.data.balance !== undefined) {
-            balance = userInfo.value.data.balance || 0;
+            balance = (userInfo.value.data.balance || 0) / 100;
           }
         }
       }
@@ -456,7 +456,7 @@ export default {
       if (data.created_at) meta.created_at = formatDate(data.created_at);
       if (data.telegram_id) meta.telegram_id = String(data.telegram_id);
       if (data.invite_user_id) meta.invite_code = String(data.invite_user_id);
-      if (data.commission_balance !== undefined) meta.commission_balance = data.commission_balance || 0;
+      if (data.commission_balance !== undefined) meta.commission_balance = (data.commission_balance || 0) / 100;
       
       return meta;
     };

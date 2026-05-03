@@ -1,132 +1,99 @@
 <template>
-
-  <div 
-
+  <div
     class="customer-service-container"
-
     :class="{ 'dark-theme': isDarkTheme }"
-
   >
-
     <!-- 顶部导航栏 -->
 
     <div class="service-header">
-
       <button class="back-button" @click="goBack">
-
         <IconArrowLeft :size="24" />
-
       </button>
 
-      <h1 class="service-title">{{ t('service.title') }}</h1>
-
-      
+      <h1 class="service-title">{{ t("service.title") }}</h1>
 
       <!-- 添加一个刷新按钮 -->
 
       <button class="refresh-button" @click="refreshChat">
-
         <IconRefresh :size="20" />
-
       </button>
-
     </div>
-
-
 
     <!-- 客服系统容器 -->
 
     <div class="service-content">
-
       <!-- Crisp客服系统会自动注入到页面中 -->
       <div v-if="serviceType === 'crisp'" class="service-crisp-container">
         <!-- 加载中提示，当聊天窗口加载时显示 -->
         <div v-if="loading" class="service-loading">
           <div class="loading-spinner"></div>
-          <p>{{ t('service.loading') }}</p>
+          <p>{{ t("service.loading") }}</p>
         </div>
       </div>
-      
+
       <!-- Chatwoot客服系统 -->
-      <div v-else-if="serviceType === 'chatwoot'" class="service-chatwoot-container">
+      <div
+        v-else-if="serviceType === 'chatwoot'"
+        class="service-chatwoot-container"
+      >
         <div v-if="loading" class="service-loading">
           <div class="loading-spinner"></div>
-          <p>{{ t('service.loading') }}</p>
+          <p>{{ t("service.loading") }}</p>
         </div>
       </div>
-      
+
       <!-- 其他客服系统直接渲染HTML -->
       <div v-else-if="serviceType === 'other'" class="service-other-container">
         <!-- 提示用户等待 -->
-        <div class="other-service-tips">{{ t('service.waitForIcon') }}</div>
+        <div class="other-service-tips">{{ t("service.waitForIcon") }}</div>
         <!-- 客服系统容器 -->
         <div id="other-service-wrapper" ref="otherServiceContainer"></div>
       </div>
 
-      
-
       <!-- 加载中提示 -->
 
       <div v-else class="service-loading">
-
         <div class="loading-spinner"></div>
 
-        <p>{{ t('service.loading') }}</p>
-
+        <p>{{ t("service.loading") }}</p>
       </div>
-
     </div>
-
   </div>
-
 </template>
 
-
-
 <script>
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from "vue";
 
-import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
+import { useRouter } from "vue-router";
 
-import { useRouter } from 'vue-router';
+import { useStore } from "vuex";
 
-import { useStore } from 'vuex';
+import { useI18n } from "vue-i18n";
 
-import { useI18n } from 'vue-i18n';
+import { CUSTOMER_SERVICE_CONFIG } from "@/utils/baseConfig";
 
-import { CUSTOMER_SERVICE_CONFIG } from '@/utils/baseConfig';
+import { getUserInfo, getCommConfig, getUserSubscribe } from "@/api/user";
 
-import { getUserInfo, getCommConfig, getUserSubscribe } from '@/api/user';
+import { formatDate } from "@/utils/formatters";
 
-import { formatDate } from '@/utils/formatters';
+import { IconArrowLeft, IconRefresh } from "@tabler/icons-vue";
 
-import { IconArrowLeft, IconRefresh } from '@tabler/icons-vue';
+import { Crisp } from "crisp-sdk-web";
 
-import { Crisp } from 'crisp-sdk-web';
-
-
-
-if (typeof window !== 'undefined') {
-
+if (typeof window !== "undefined") {
   window.CRISP_INITIALIZED = window.CRISP_INITIALIZED || false;
-
 }
 
-
-
 export default {
-
-  name: 'CustomerService',
+  name: "CustomerService",
 
   components: {
-
     IconArrowLeft,
 
-    IconRefresh
-
+    IconRefresh,
   },
 
   setup() {
-
     const router = useRouter();
 
     const store = useStore();
@@ -141,218 +108,159 @@ export default {
 
     const crispInitialized = ref(window.CRISP_INITIALIZED || false);
 
-    const currencySymbol = ref('¥'); 
-    const userSubscribe = ref(null);  
-
+    const currencySymbol = ref("¥");
+    const userSubscribe = ref(null);
 
     const serviceType = computed(() => {
-
-      return CUSTOMER_SERVICE_CONFIG?.type || 'crisp'; 
+      return CUSTOMER_SERVICE_CONFIG?.type || "crisp";
     });
 
-
-
     const initCrisp = () => {
-
-      if (serviceType.value !== 'crisp') return;
-
-      
+      if (serviceType.value !== "crisp") return;
 
       if (window.CRISP_INITIALIZED) {
-
         try {
-
-          Crisp.chat.show(); 
-          Crisp.chat.open(); 
+          Crisp.chat.show();
+          Crisp.chat.open();
           loading.value = false;
 
           crispInitialized.value = true;
 
           return;
-
         } catch (error) {
-
-          console.error('显示已初始化的Crisp失败:', error);
-
+          console.error("显示已初始化的Crisp失败:", error);
         }
-
       }
 
-      
-
       try {
+        const crispIdMatch = CUSTOMER_SERVICE_CONFIG?.customHtml?.match(
+          /CRISP_WEBSITE_ID="([^"]*)"/,
+        );
 
-        const crispIdMatch = CUSTOMER_SERVICE_CONFIG?.customHtml?.match(/CRISP_WEBSITE_ID="([^"]*)"/);
-
-        const websiteId = crispIdMatch ? crispIdMatch[1] : '';
-
-        
+        const websiteId = crispIdMatch ? crispIdMatch[1] : "";
 
         if (!websiteId) {
-
-          console.error('无法从配置中提取Crisp ID');
+          console.error("无法从配置中提取Crisp ID");
 
           loading.value = false;
 
           return;
-
         }
-
-
 
         Crisp.configure(websiteId);
 
-        
+        const storedTheme = localStorage.getItem("theme");
 
-        const storedTheme = localStorage.getItem('theme');
+        const currentTheme =
+          storedTheme || store.getters.currentTheme || "light";
 
-        const currentTheme = storedTheme || store.getters.currentTheme || 'light';
-
-        const isCurrentDarkTheme = currentTheme === 'dark';
-
-        
+        const isCurrentDarkTheme = currentTheme === "dark";
 
         if (isCurrentDarkTheme) {
-
-          Crisp.setColorTheme('dark');
-
+          Crisp.setColorTheme("dark");
         }
 
-
-
         if (store.getters.isLoggedIn) {
-
-          let userEmail = '';
-
-          
+          let userEmail = "";
 
           if (userInfo.value) {
-
-            if (typeof userInfo.value === 'object') {
-
+            if (typeof userInfo.value === "object") {
               if (userInfo.value.email) {
-
                 userEmail = userInfo.value.email;
-
               } else if (userInfo.value.data && userInfo.value.data.email) {
-
                 userEmail = userInfo.value.data.email;
-
               }
-
             }
-
           }
-
-          
 
           if (!userEmail && userSubscribe.value) {
-
-            if (typeof userSubscribe.value === 'object') {
-
+            if (typeof userSubscribe.value === "object") {
               if (userSubscribe.value.email) {
-
                 userEmail = userSubscribe.value.email;
-
-              } else if (userSubscribe.value.data && userSubscribe.value.data.email) {
-
+              } else if (
+                userSubscribe.value.data &&
+                userSubscribe.value.data.email
+              ) {
                 userEmail = userSubscribe.value.data.email;
-
               }
-
             }
-
           }
 
-          
-
           if (!userEmail) {
-
-            const storedUser = localStorage.getItem('user');
+            const storedUser = localStorage.getItem("user");
 
             if (storedUser) {
-
               try {
-
                 const parsedUser = JSON.parse(storedUser);
 
                 if (parsedUser && parsedUser.email) {
-
                   userEmail = parsedUser.email;
-
                 }
-
               } catch (e) {
-
-                console.error('解析localStorage用户数据失败:', e);
-
+                console.error("解析localStorage用户数据失败:", e);
               }
-
             }
-
           }
-
-          
 
           if (userEmail) {
-
             Crisp.user.setEmail(userEmail);
 
-            const nickname = userEmail.split('@')[0];
+            const nickname = userEmail.split("@")[0];
 
             Crisp.user.setNickname(nickname);
-
           } else {
-
-            console.warn('无法获取用户邮箱，跳过设置邮箱和昵称');
-
+            console.warn("无法获取用户邮箱，跳过设置邮箱和昵称");
           }
-
-
 
           let planName = "未知套餐";
 
-          if (userSubscribe.value && userSubscribe.value.plan && userSubscribe.value.plan.name) {
-
+          if (
+            userSubscribe.value &&
+            userSubscribe.value.plan &&
+            userSubscribe.value.plan.name
+          ) {
             planName = userSubscribe.value.plan.name;
-
-          } else if (userSubscribe.value && userSubscribe.value.data && userSubscribe.value.data.plan && userSubscribe.value.data.plan.name) {
-
+          } else if (
+            userSubscribe.value &&
+            userSubscribe.value.data &&
+            userSubscribe.value.data.plan &&
+            userSubscribe.value.data.plan.name
+          ) {
             planName = userSubscribe.value.data.plan.name;
-
-          } else if (userInfo.value && userInfo.value.plan_name && userInfo.value.plan_name.trim() !== '') {
-
+          } else if (
+            userInfo.value &&
+            userInfo.value.plan_name &&
+            userInfo.value.plan_name.trim() !== ""
+          ) {
             planName = userInfo.value.plan_name;
-
-          } else if (userInfo.value && userInfo.value.group && userInfo.value.group.name && userInfo.value.group.name.trim() !== '') {
-
+          } else if (
+            userInfo.value &&
+            userInfo.value.group &&
+            userInfo.value.group.name &&
+            userInfo.value.group.name.trim() !== ""
+          ) {
             planName = userInfo.value.group.name;
-
           }
-
-          
 
           let expireDate = "无限期";
 
           if (userSubscribe.value && userSubscribe.value.expired_at) {
-
             expireDate = formatDate(userSubscribe.value.expired_at);
-
-          } else if (userSubscribe.value && userSubscribe.value.data && userSubscribe.value.data.expired_at) {
-
+          } else if (
+            userSubscribe.value &&
+            userSubscribe.value.data &&
+            userSubscribe.value.data.expired_at
+          ) {
             expireDate = formatDate(userSubscribe.value.data.expired_at);
-
           } else if (userInfo.value && userInfo.value.expired_at) {
-
             expireDate = formatDate(userInfo.value.expired_at);
-
-          } else if (userInfo.value && userInfo.value.data && userInfo.value.data.expired_at) {
-
+          } else if (
+            userInfo.value &&
+            userInfo.value.data &&
+            userInfo.value.data.expired_at
+          ) {
             expireDate = formatDate(userInfo.value.data.expired_at);
-
           }
-
-          
 
           let transferEnable = 0;
 
@@ -360,182 +268,140 @@ export default {
 
           let d = 0;
 
-          
-
           if (userSubscribe.value) {
-
-            if (typeof userSubscribe.value === 'object') {
-
+            if (typeof userSubscribe.value === "object") {
               if (userSubscribe.value.transfer_enable !== undefined) {
-
                 transferEnable = userSubscribe.value.transfer_enable || 0;
 
                 u = userSubscribe.value.u || 0;
 
                 d = userSubscribe.value.d || 0;
-
-              } else if (userSubscribe.value.data && userSubscribe.value.data.transfer_enable !== undefined) {
-
+              } else if (
+                userSubscribe.value.data &&
+                userSubscribe.value.data.transfer_enable !== undefined
+              ) {
                 transferEnable = userSubscribe.value.data.transfer_enable || 0;
 
                 u = userSubscribe.value.data.u || 0;
 
                 d = userSubscribe.value.data.d || 0;
-
               }
-
             }
-
-          } 
-
-          
+          }
 
           if (transferEnable === 0 && userInfo.value) {
-
-            if (typeof userInfo.value === 'object') {
-
+            if (typeof userInfo.value === "object") {
               if (userInfo.value.transfer_enable !== undefined) {
-
                 transferEnable = userInfo.value.transfer_enable || 0;
 
                 u = userInfo.value.u || 0;
 
                 d = userInfo.value.d || 0;
-
-              } else if (userInfo.value.data && userInfo.value.data.transfer_enable !== undefined) {
-
+              } else if (
+                userInfo.value.data &&
+                userInfo.value.data.transfer_enable !== undefined
+              ) {
                 transferEnable = userInfo.value.data.transfer_enable || 0;
 
                 u = userInfo.value.data.u || 0;
 
                 d = userInfo.value.data.d || 0;
-
               }
-
             }
-
           }
-
-          
 
           const remainingBytes = transferEnable - (u + d);
 
-          
-
-          const remainingGB = (remainingBytes / (1024 * 1024 * 1024)).toFixed(2);
-
-          
+          const remainingGB = (remainingBytes / (1024 * 1024 * 1024)).toFixed(
+            2,
+          );
 
           let balance = 0;
 
-          
-
           if (userInfo.value) {
-
-            if (typeof userInfo.value === 'object') {
-
+            if (typeof userInfo.value === "object") {
               if (userInfo.value.balance !== undefined) {
-
-                balance = userInfo.value.balance || 0;
-
-              } else if (userInfo.value.data && userInfo.value.data.balance !== undefined) {
-
-                balance = userInfo.value.data.balance || 0;
-
+                balance = (userInfo.value.balance || 0) / 100;
+              } else if (
+                userInfo.value.data &&
+                userInfo.value.data.balance !== undefined
+              ) {
+                balance = (userInfo.value.data.balance || 0) / 100;
               }
-
             }
-
           }
 
-          
-
           const sessionData = {
-
             Email: userEmail,
 
             Plan: planName,
 
             Expires: expireDate,
 
-            Traffic: remainingGB + ' GB',
+            Traffic: remainingGB + " GB",
 
-            Balance: balance + ' ' + currencySymbol.value
-
+            Balance: balance + " " + currencySymbol.value,
           };
 
-          
-
           Crisp.session.setData(sessionData);
-
         }
 
-
-
         Crisp.session.onLoaded(() => {
-
           loading.value = false;
 
           window.CRISP_INITIALIZED = true;
 
           crispInitialized.value = true;
-
         });
-
-        
-
       } catch (error) {
-
-        console.error('初始化Crisp客服系统失败:', error);
+        console.error("初始化Crisp客服系统失败:", error);
 
         loading.value = false;
-
       }
-
     };
-
-    
 
     // ============ Chatwoot 初始化 ============
     const initChatwoot = () => {
-      if (serviceType.value !== 'chatwoot') return;
-      
+      if (serviceType.value !== "chatwoot") return;
+
       if (window.CHATWOOT_INITIALIZED && window.$chatwoot) {
         try {
-          window.$chatwoot.toggle('open');
+          window.$chatwoot.toggle("open");
           loading.value = false;
           return;
         } catch (error) {
-          console.error('打开已初始化的Chatwoot失败:', error);
+          console.error("打开已初始化的Chatwoot失败:", error);
         }
       }
-      
+
       try {
-        const customHtml = CUSTOMER_SERVICE_CONFIG?.customHtml || '';
+        const customHtml = CUSTOMER_SERVICE_CONFIG?.customHtml || "";
         const tokenMatch = customHtml.match(/CHATWOOT_TOKEN="([^"]*)"/);
         const baseUrlMatch = customHtml.match(/CHATWOOT_BASE_URL="([^"]*)"/);
-        const websiteToken = tokenMatch ? tokenMatch[1] : '';
-        const baseUrl = baseUrlMatch ? baseUrlMatch[1] : 'https://app.chatwoot.com';
-        
+        const websiteToken = tokenMatch ? tokenMatch[1] : "";
+        const baseUrl = baseUrlMatch
+          ? baseUrlMatch[1]
+          : "https://app.chatwoot.com";
+
         if (!websiteToken) {
-          console.error('无法从配置中提取Chatwoot Token');
+          console.error("无法从配置中提取Chatwoot Token");
           loading.value = false;
           return;
         }
-        
+
         // 在初始化前设置暗色模式（Chatwoot SDK 不提供 setTheme 方法）
-        const storedTheme = localStorage.getItem('theme');
+        const storedTheme = localStorage.getItem("theme");
         window.chatwootSettings = {
-          position: 'right',
-          type: 'expanded_bubble',
-          launcherTitle: '在线客服',
-          darkMode: storedTheme === 'dark' ? 'dark' : 'light'
+          position: "right",
+          type: "expanded_bubble",
+          launcherTitle: "在线客服",
+          darkMode: storedTheme === "dark" ? "dark" : "light",
         };
-        
+
         // 加载 SDK
-        if (!document.getElementById('chatwoot-sdk')) {
-          const script = document.createElement('script');
-          script.id = 'chatwoot-sdk';
+        if (!document.getElementById("chatwoot-sdk")) {
+          const script = document.createElement("script");
+          script.id = "chatwoot-sdk";
           script.src = `${baseUrl}/packs/js/sdk.js`;
           script.async = true;
           script.defer = true;
@@ -544,195 +410,142 @@ export default {
           };
           document.head.appendChild(script);
         }
-        
-        window.addEventListener('chatwoot:ready', () => {
+
+        window.addEventListener("chatwoot:ready", () => {
           loading.value = false;
           window.CHATWOOT_INITIALIZED = true;
-          
+
           if (store.getters.isLoggedIn && window.$chatwoot) {
             const userEmail = extractUserEmailForChatwoot();
             if (userEmail) {
               window.$chatwoot.setUser(userEmail, {
                 email: userEmail,
-                name: userEmail.split('@')[0]
+                name: userEmail.split("@")[0],
               });
             }
           }
-          
+
           // 自动打开聊天窗口
           if (window.$chatwoot) {
-            window.$chatwoot.toggle('open');
+            window.$chatwoot.toggle("open");
           }
         });
-        
       } catch (error) {
-        console.error('初始化Chatwoot客服系统失败:', error);
+        console.error("初始化Chatwoot客服系统失败:", error);
         loading.value = false;
       }
     };
-    
+
     const extractUserEmailForChatwoot = () => {
-      let email = '';
+      let email = "";
       if (userInfo.value?.email) email = userInfo.value.email;
       else if (userInfo.value?.data?.email) email = userInfo.value.data.email;
       if (!email) {
-        const stored = localStorage.getItem('user');
-        if (stored) { try { email = JSON.parse(stored)?.email || ''; } catch(e) {} }
+        const stored = localStorage.getItem("user");
+        if (stored) {
+          try {
+            email = JSON.parse(stored)?.email || "";
+          } catch (e) {}
+        }
       }
       return email;
     };
-    
+
     const clearOtherService = () => {
+      const scripts = document.querySelectorAll(
+        'script[id^="zoho"], script[id*="chat"], script[id*="support"], script[id*="customer"]',
+      );
 
-      const scripts = document.querySelectorAll('script[id^="zoho"], script[id*="chat"], script[id*="support"], script[id*="customer"]');
-
-      scripts.forEach(script => {
-
+      scripts.forEach((script) => {
         if (script && script.parentNode) {
-
           script.parentNode.removeChild(script);
-
         }
-
       });
-
-      
 
       if (otherServiceContainer.value) {
-
-        otherServiceContainer.value.innerHTML = '';
-
+        otherServiceContainer.value.innerHTML = "";
       }
-
-      
 
       if (window.ZohoDeskAsap) {
-
         window.ZohoDeskAsap = undefined;
-
       }
 
-      
+      const possibleElements = document.querySelectorAll(
+        '[id*="chat"], [id*="support"], [id*="crisp"], [id*="zoho"], [id*="custom-chat"]',
+      );
 
-      const possibleElements = document.querySelectorAll('[id*="chat"], [id*="support"], [id*="crisp"], [id*="zoho"], [id*="custom-chat"]');
-
-      possibleElements.forEach(el => {
-
-        if (el && el.id !== 'other-service-wrapper' && el.parentNode) {
-
+      possibleElements.forEach((el) => {
+        if (el && el.id !== "other-service-wrapper" && el.parentNode) {
           el.parentNode.removeChild(el);
-
         }
-
       });
-
     };
 
-    
-
     const loadOtherService = () => {
-
       if (!CUSTOMER_SERVICE_CONFIG?.customHtml) return;
-
-      
 
       clearOtherService();
 
-      
-
-      const container = document.getElementById('other-service-wrapper');
+      const container = document.getElementById("other-service-wrapper");
 
       if (!container) return;
 
-      
+      const div = document.createElement("div");
 
-      const div = document.createElement('div');
-
-      div.className = 'custom-chat-container';
-
-      
+      div.className = "custom-chat-container";
 
       document.body.appendChild(div);
 
-      
-
       try {
-
         const scriptContent = CUSTOMER_SERVICE_CONFIG.customHtml;
 
-        const scriptElement = document.createElement('script');
+        const scriptElement = document.createElement("script");
 
-        
-
-        const tempDiv = document.createElement('div');
+        const tempDiv = document.createElement("div");
 
         tempDiv.innerHTML = scriptContent;
 
-        const originalScript = tempDiv.querySelector('script');
-
-        
+        const originalScript = tempDiv.querySelector("script");
 
         if (originalScript) {
-
-          Array.from(originalScript.attributes).forEach(attr => {
-
+          Array.from(originalScript.attributes).forEach((attr) => {
             scriptElement.setAttribute(attr.name, attr.value);
-
           });
 
-          
-
-          scriptElement.textContent = originalScript.textContent || '';
-
-          
+          scriptElement.textContent = originalScript.textContent || "";
 
           document.body.appendChild(scriptElement);
-
         } else {
-
           scriptElement.textContent = scriptContent;
 
           document.body.appendChild(scriptElement);
-
         }
 
-        
-
         loading.value = false;
-
       } catch (error) {
-
-        console.error('加载客服系统脚本失败:', error);
+        console.error("加载客服系统脚本失败:", error);
 
         loading.value = false;
-
       }
-
     };
 
-    
-
     const isDarkTheme = computed(() => {
+      const storedTheme = localStorage.getItem("theme");
 
-      const storedTheme = localStorage.getItem('theme');
-
-      return storedTheme === 'dark';
-
+      return storedTheme === "dark";
     });
 
-    
-
     const refreshChat = () => {
-      if (serviceType.value === 'crisp') {
+      if (serviceType.value === "crisp") {
         loading.value = true;
         Crisp.session.reset();
         window.CRISP_INITIALIZED = false;
         crispInitialized.value = false;
-        
+
         nextTick(() => {
           initCrisp();
         });
-      } else if (serviceType.value === 'chatwoot') {
+      } else if (serviceType.value === "chatwoot") {
         if (window.$chatwoot) {
           window.$chatwoot.reset();
           window.CHATWOOT_INITIALIZED = false;
@@ -746,187 +559,123 @@ export default {
       } else {
         window.location.reload();
       }
-
     };
 
-    
-
-    watch(() => isDarkTheme.value, (newVal) => {
-
-      if (serviceType.value === 'crisp' && crispInitialized.value) {
-
-        Crisp.setColorTheme(newVal ? 'dark' : 'light');
-
-      }
-
-    });
-
-    
+    watch(
+      () => isDarkTheme.value,
+      (newVal) => {
+        if (serviceType.value === "crisp" && crispInitialized.value) {
+          Crisp.setColorTheme(newVal ? "dark" : "light");
+        }
+      },
+    );
 
     const fetchUserInfo = async () => {
-
-      if (!store.getters.isLoggedIn || (serviceType.value !== 'crisp' && serviceType.value !== 'chatwoot')) return;
-
-      
+      if (
+        !store.getters.isLoggedIn ||
+        (serviceType.value !== "crisp" && serviceType.value !== "chatwoot")
+      )
+        return;
 
       try {
+        const [userInfoResponse, commConfigResponse, subscribeResponse] =
+          await Promise.all([
+            getUserInfo(),
 
-        const [userInfoResponse, commConfigResponse, subscribeResponse] = await Promise.all([
+            getCommConfig(),
 
-          getUserInfo(),
+            getUserSubscribe(),
+          ]);
 
-          getCommConfig(),
+        userInfo.value = userInfoResponse.data
+          ? userInfoResponse.data
+          : userInfoResponse;
 
-          getUserSubscribe()
-
-        ]);
-
-        
-
-        userInfo.value = userInfoResponse.data ? userInfoResponse.data : userInfoResponse;
-
-        
-
-        const commConfigData = commConfigResponse.data ? commConfigResponse.data : commConfigResponse;
-
-        
+        const commConfigData = commConfigResponse.data
+          ? commConfigResponse.data
+          : commConfigResponse;
 
         if (commConfigData && commConfigData.currency_symbol) {
-
           currencySymbol.value = commConfigData.currency_symbol;
-
         }
 
-        
-
-        userSubscribe.value = subscribeResponse.data ? subscribeResponse.data : subscribeResponse;
-
-        
-
+        userSubscribe.value = subscribeResponse.data
+          ? subscribeResponse.data
+          : subscribeResponse;
       } catch (error) {
-
-        console.error('获取用户信息失败:', error);
-
+        console.error("获取用户信息失败:", error);
       }
-
     };
-
-    
 
     const goBack = () => {
-
-      if (serviceType.value === 'crisp' && crispInitialized.value) {
-
+      if (serviceType.value === "crisp" && crispInitialized.value) {
         try {
-
-          Crisp.chat.hide(); 
+          Crisp.chat.hide();
         } catch (error) {
-
-          console.error('隐藏Crisp失败:', error);
-
+          console.error("隐藏Crisp失败:", error);
         }
-
       } else {
-
         clearOtherService();
-
       }
 
-      
-
       router.back();
-
     };
 
-    
-
     onMounted(async () => {
-
       await fetchUserInfo();
 
-      
-
-      if (serviceType.value === 'other') {
-
-        const hasReloaded = sessionStorage.getItem('cs_page_reloaded');
+      if (serviceType.value === "other") {
+        const hasReloaded = sessionStorage.getItem("cs_page_reloaded");
 
         if (!hasReloaded) {
-
-          sessionStorage.setItem('cs_page_reloaded', 'true');
+          sessionStorage.setItem("cs_page_reloaded", "true");
 
           window.location.reload();
 
           return;
-
         }
-
       } else {
-
-        sessionStorage.removeItem('cs_page_reloaded');
-
+        sessionStorage.removeItem("cs_page_reloaded");
       }
 
-      
-
-      if (serviceType.value === 'crisp') {
+      if (serviceType.value === "crisp") {
         initCrisp();
-      } else if (serviceType.value === 'chatwoot') {
+      } else if (serviceType.value === "chatwoot") {
         initChatwoot();
       } else {
         loadOtherService();
       }
 
-      
-
-      window.addEventListener('storage', (e) => {
-
-        if (e.key === 'theme' && serviceType.value === 'crisp' && crispInitialized.value) {
-
+      window.addEventListener("storage", (e) => {
+        if (
+          e.key === "theme" &&
+          serviceType.value === "crisp" &&
+          crispInitialized.value
+        ) {
           const newTheme = e.newValue;
 
-          Crisp.setColorTheme(newTheme === 'dark' ? 'dark' : 'light');
-
+          Crisp.setColorTheme(newTheme === "dark" ? "dark" : "light");
         }
-
       });
-
     });
-
-    
 
     onUnmounted(() => {
+      window.removeEventListener("storage", () => {});
 
-      window.removeEventListener('storage', () => {});
+      sessionStorage.removeItem("cs_page_reloaded");
 
-      
-
-      sessionStorage.removeItem('cs_page_reloaded');
-
-      
-
-      if (serviceType.value === 'crisp' && crispInitialized.value) {
-
+      if (serviceType.value === "crisp" && crispInitialized.value) {
         try {
-
-          Crisp.chat.hide(); 
+          Crisp.chat.hide();
         } catch (error) {
-
-          console.error('隐藏Crisp失败:', error);
-
+          console.error("隐藏Crisp失败:", error);
         }
-
       } else {
-
         clearOtherService();
-
       }
-
     });
 
-    
-
     return {
-
       isDarkTheme,
 
       otherServiceContainer,
@@ -939,22 +688,14 @@ export default {
 
       loading,
 
-      t
-
+      t,
     };
-
-  }
-
+  },
 };
-
 </script>
 
-
-
 <style lang="scss" scoped>
-
 .customer-service-container {
-
   display: flex;
 
   flex-direction: column;
@@ -967,11 +708,8 @@ export default {
 
   color: var(--text-color);
 
-  
-
   &.dark-theme {
-
-    --background-color: #171A1D;
+    --background-color: #171a1d;
 
     --card-background: rgba(30, 30, 30, 0.8);
 
@@ -980,13 +718,9 @@ export default {
     --secondary-text-color: rgba(255, 255, 255, 0.6);
 
     --border-color: rgba(255, 255, 255, 0.1);
-
   }
 
-  
-
   &:not(.dark-theme) {
-
     --background-color: #f5f7fa;
 
     --card-background: #ffffff;
@@ -996,15 +730,10 @@ export default {
     --secondary-text-color: #666666;
 
     --border-color: #e8e8e8;
-
   }
-
 }
 
-
-
 .service-header {
-
   display: flex;
 
   align-items: center;
@@ -1018,13 +747,10 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
   background-color: var(--card-background);
-
 }
 
-
-
-.back-button, .refresh-button {
-
+.back-button,
+.refresh-button {
   background: none;
 
   border: none;
@@ -1040,21 +766,13 @@ export default {
   align-items: center;
 
   justify-content: center;
-
 }
-
-
 
 .refresh-button {
-
-  margin-left: auto; 
-
+  margin-left: auto;
 }
 
-
-
 .service-title {
-
   margin: 0 0 0 12px;
 
   font-size: 18px;
@@ -1063,14 +781,10 @@ export default {
 
   color: var(--text-color);
 
-  flex-grow: 1; 
-
+  flex-grow: 1;
 }
 
-
-
 .service-content {
-
   flex: 1;
 
   overflow: hidden;
@@ -1080,10 +794,7 @@ export default {
   width: 100%;
 
   height: calc(100vh - 70px);
-
 }
-
-
 
 .service-crisp-container,
 .service-chatwoot-container {
@@ -1092,10 +803,7 @@ export default {
   position: relative;
 }
 
-
-
 .service-other-container {
-
   width: 100%;
 
   height: 100%;
@@ -1104,10 +812,7 @@ export default {
 
   position: relative;
 
-  
-
   .other-service-tips {
-
     padding: 16px;
 
     text-align: center;
@@ -1117,15 +822,10 @@ export default {
     font-size: 16px;
 
     margin-top: 40px;
-
   }
-
 }
 
-
-
 .service-loading {
-
   display: flex;
 
   flex-direction: column;
@@ -1136,10 +836,7 @@ export default {
 
   height: 100%;
 
-  
-
   .loading-spinner {
-
     width: 40px;
 
     height: 40px;
@@ -1153,59 +850,36 @@ export default {
     animation: spin 1s linear infinite;
 
     margin-bottom: 16px;
-
   }
 
-  
-
   p {
-
     color: var(--text-color);
 
     font-size: 16px;
-
   }
-
 }
-
-
 
 @keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
 
-  0% { transform: rotate(0deg); }
-
-  100% { transform: rotate(360deg); }
-
+  100% {
+    transform: rotate(360deg);
+  }
 }
-
-
-
-
 
 @media (max-width: 768px) {
-
   .service-header {
-
     padding: 16px;
-
   }
-
-  
 
   .service-title {
-
     font-size: 16px;
-
   }
-
-  
 
   .service-content {
-
     height: calc(100vh - 60px);
-
   }
-
 }
-
-</style> 
+</style>
