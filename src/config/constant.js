@@ -37,13 +37,13 @@ export const getAppLink = (type) => {
 
   switch (type) {
     case 'android':
-      link += '#/docs/160'
+      link = '#/docs/160'
       break
     case 'ios':
       link = '#/docs/130'
       break
     case 'windows':
-      link += '#/docs/50'
+      link = '#/docs/50'
       break
     case 'macos':
       link = '#/docs/230'
@@ -55,7 +55,7 @@ export const getAppLink = (type) => {
       link = '#/docs/350'
       break
     default:
-      link += '#/docs/50'
+      link = '#/docs/50'
   }
   return link
 }
