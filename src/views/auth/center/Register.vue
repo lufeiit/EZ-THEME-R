@@ -607,6 +607,7 @@ import { register, checkLoginStatus, getWebsiteConfig, sendEmailVerify } from '@
 import DomainAuthAlert from '@/components/common/DomainAuthAlert.vue';
 
 import { CAPTCHA_CONFIG, AUTH_CONFIG } from '@/utils/baseConfig';
+import { getThemeAssetPath } from '@/utils/themeAssets';
 
 import AuthPopup from '@/components/auth/AuthPopup.vue';
 
@@ -734,11 +735,11 @@ export default {
 
 
 
-    const logoPath = ref('./images/logo.png');
+    const logoPath = ref(getThemeAssetPath('images/logo.png'));
 
     const handleLogoError = () => {
 
-      logoPath.value = '/images/logo.png';
+      logoPath.value = getThemeAssetPath('images/logo.png');
 
     };
 

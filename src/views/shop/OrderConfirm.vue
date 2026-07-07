@@ -1241,11 +1241,40 @@ export default {
 
     });
 
+    // Codex改动：从购买页下翻位置进入确认页时，强制回到页面顶部，避免确认订单说明被滚动位置遮掉
+    const resetOrderConfirmScroll = () => {
+      const reset = () => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+
+        [
+          document.documentElement,
+          document.body,
+          document.querySelector('.content-area'),
+          document.querySelector('.main-board'),
+          document.querySelector('.view-wrapper')
+        ].forEach((element) => {
+          if (element) {
+            element.scrollTop = 0;
+            element.scrollLeft = 0;
+          }
+        });
+      };
+
+      reset();
+      requestAnimationFrame(reset);
+      setTimeout(reset, 120);
+    };
+
 
 
     onMounted(async () => {
+      resetOrderConfirmScroll();
+
       // 先获取套餐数据
       await Promise.all([fetchPlanData(), fetchUserInfo(), fetchConfig()]);
+
+      await nextTick();
+      resetOrderConfirmScroll();
 
       // 检查URL中是否有优惠券参数
       if (route.query.coupon) {
@@ -1265,8 +1294,11 @@ export default {
       // 监听id参数变化（切换不同套餐）
       watch(() => route.query.id, async (newId, oldId) => {
         if (newId && newId !== oldId) {
+          resetOrderConfirmScroll();
           // 重新加载套餐数据
           await fetchPlanData();
+          await nextTick();
+          resetOrderConfirmScroll();
           // 如果有优惠券，重新验证
           if (couponCode.value && plan.value) {
             await verifyCoupon();
@@ -1302,8 +1334,11 @@ export default {
     // 监听路由参数变化，处理id参数变化（切换不同套餐）
     watch(() => route.query.id, async (newId, oldId) => {
       if (newId && newId !== oldId) {
+        resetOrderConfirmScroll();
         // 重新加载套餐数据
         await fetchPlanData();
+        await nextTick();
+        resetOrderConfirmScroll();
         // 如果有优惠券，重新验证
         if (couponCode.value && plan.value) {
           await verifyCoupon();

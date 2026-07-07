@@ -343,12 +343,11 @@
 
                 <!--{{ userInfo.telegram_id ? '解绑' : `绑定 ${ $t('profile.telegramBot') }`}}-->
 
+                <!-- Codex改动：bindTelegram 翻译已包含“Telegram 机器人”，避免重复拼接。 -->
                 {{
                   userInfo.telegram_id
                     ? $t("profile.unbindTelegram")
-                    : `${$t("profile.bindTelegram")} ${$t(
-                        "profile.telegramBot",
-                      )}`
+                    : $t("profile.bindTelegram")
                 }}
               </button>
             </div>

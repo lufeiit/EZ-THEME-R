@@ -8,6 +8,8 @@ const JavaScriptObfuscator = require("javascript-obfuscator");
 const isProd = process.env.NODE_ENV === "production";
 const enableConfigJS = process.env.VUE_APP_CONFIGJS == "true";
 const enableObfuscation = process.env.VUE_APP_OBFUSCATION == "true";
+// Codex改动：允许 V2Board 主题打包脚本覆盖 publicPath，保证异步分包从 /theme/{theme}/ 下加载。
+const publicPath = process.env.VUE_APP_PUBLIC_PATH || "./";
 
 let extraScriptFileName = '';
 const generateRandomFileName = (length = 8) => {
@@ -26,7 +28,7 @@ if (isProd && enableConfigJS) {
 }
 
 module.exports = defineConfig({
-  publicPath: "./",
+  publicPath,
   outputDir: "dist",
   assetsDir: "static",
   lintOnSave: false,
@@ -35,6 +37,21 @@ module.exports = defineConfig({
   configureWebpack: (config) => {
     config.experiments = { ...config.experiments, asyncWebAssembly: true, syncWebAssembly: true };
     config.resolve = { ...config.resolve, alias: { "@": path.resolve(__dirname, "src") } };
+    // Codex改动：开发环境使用轮询并忽略大目录，避免低 inotify 限额服务器运行 npm run serve 时 ENOSPC。
+    if (!isProd) {
+      config.watchOptions = {
+        ...(config.watchOptions || {}),
+        ignored: [
+          "**/node_modules/**",
+          "**/dist/**",
+          "**/dist-v2board/**",
+          "**/.git/**",
+          "**/.github/**",
+        ],
+        poll: 1000,
+        aggregateTimeout: 300,
+      };
+    }
 
     config.plugins.push(
       new webpack.DefinePlugin({
@@ -107,6 +124,8 @@ module.exports = defineConfig({
         minimize: true,
         minimizer: [
           new TerserPlugin({
+            // Codex改动：关闭并行压缩，降低 V2Board 主题打包时的峰值内存占用。
+            parallel: false,
             terserOptions: { compress: { drop_console: true, drop_debugger: true }, mangle: true, format: { comments: false, ascii_only: true } },
             extractComments: false,
           }),
@@ -144,5 +163,25 @@ module.exports = defineConfig({
     index: { entry: "src/main.js", template: "public/index.html", filename: "index.html", title: process.env.VUE_APP_TITLE },
   },
 
-  devServer: { client: { overlay: false } },
+  // Codex改动：开发模式显式启用 HMR/liveReload，并适配通过局域网 IP 访问时的 WebSocket 自动刷新。
+  devServer: {
+    host: "0.0.0.0",
+    allowedHosts: "all",
+    hot: true,
+    liveReload: true,
+    static: {
+      watch: false,
+    },
+    client: {
+      overlay: false,
+      webSocketURL: "auto://0.0.0.0:0/ws",
+    },
+    watchFiles: {
+      paths: ["src/**/*", "public/**/*"],
+      options: {
+        usePolling: true,
+        interval: 500,
+      },
+    },
+  },
 });

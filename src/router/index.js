@@ -28,23 +28,28 @@ const getAuthComponent = (componentName) => {
 
 
 
-const getThirdNavItem = () => {
-
+// Codex改动：路由高亮支持多个配置到顶部导航栏的目录，并兼容旧的第三/第四项配置
+const getConfiguredTopNavItems = () => {
   const { NAVIGATION_CONFIG } = require('@/utils/baseConfig');
 
-  return NAVIGATION_CONFIG?.thirdNavItem || 'docs';
-};
+  const configuredItems = Array.isArray(NAVIGATION_CONFIG?.extraNavItems)
+    ? NAVIGATION_CONFIG.extraNavItems.filter(Boolean)
+    : [];
 
-const getFourthNavItem = () => {
-  const { NAVIGATION_CONFIG } = require('@/utils/baseConfig');
-  return NAVIGATION_CONFIG?.fourthNavItem || '';
+  if (configuredItems.length > 0) {
+    return configuredItems;
+  }
+
+  return [
+    NAVIGATION_CONFIG?.thirdNavItem || 'docs',
+    NAVIGATION_CONFIG?.fourthNavItem || ''
+  ].filter(Boolean);
 };
 
 
 
 const getActiveNavForRoute = (routeName) => {
-  const thirdNavItem = getThirdNavItem();
-  const fourthNavItem = getFourthNavItem();
+  const topNavItems = getConfiguredTopNavItems();
 
   // 导航项对应的路由名称映射
   const routeMap = {
@@ -79,16 +84,12 @@ const getActiveNavForRoute = (routeName) => {
     Profile: 'Profile'
   };
 
-  // 如果当前路由匹配第三个导航项，则返回第三项对应的导航名
-  const thirdNavRouteName = routeMap[thirdNavItem];
-  if (thirdNavRouteName && routeName === thirdNavRouteName) {
-    return navNameMap[thirdNavRouteName] || 'More';
-  }
-
-  // 如果当前路由匹配第四个导航项（且第四项存在且有效），返回第四项对应的导航名
-  const fourthNavRouteName = fourthNavItem ? routeMap[fourthNavItem] : '';
-  if (fourthNavRouteName && routeName === fourthNavRouteName) {
-    return navNameMap[fourthNavRouteName] || 'More';
+  // Codex改动：只要当前路由属于顶部导航配置数组，就高亮对应顶部项
+  for (const itemKey of topNavItems) {
+    const navRouteName = routeMap[itemKey];
+    if (navRouteName && routeName === navRouteName) {
+      return navNameMap[navRouteName] || 'More';
+    }
   }
 
   // 其他情况归类为“更多”

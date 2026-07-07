@@ -382,11 +382,23 @@ const isXiaoPanel = isXiaoV2board();
 
 const morePageConfig = MORE_PAGE_CONFIG;
 
-const thirdNavItem = NAVIGATION_CONFIG?.thirdNavItem || 'invite';
+// Codex改动：更多页隐藏所有已配置到顶部导航的目录，兼容旧 third/fourth 配置
+const configuredTopNavItems = computed(() => {
+  const configuredItems = Array.isArray(NAVIGATION_CONFIG?.extraNavItems)
+    ? NAVIGATION_CONFIG.extraNavItems.filter(Boolean)
+    : [];
 
-const fourthNavItem = NAVIGATION_CONFIG?.fourthNavItem || '';
+  if (configuredItems.length > 0) {
+    return configuredItems;
+  }
 
-const isHiddenByTopNav = (key) => key === thirdNavItem || key === fourthNavItem;
+  return [
+    NAVIGATION_CONFIG?.thirdNavItem || 'invite',
+    NAVIGATION_CONFIG?.fourthNavItem || ''
+  ].filter(Boolean);
+});
+
+const isHiddenByTopNav = (key) => configuredTopNavItems.value.includes(key);
 
 
 

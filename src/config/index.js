@@ -1,7 +1,8 @@
 /**
  * 外部配置文件
  * index.html 中可以搜索 EZ 将其替换为您的网站名称
- * logo 摆放位置为 images/logo.png
+ * 旧说明：logo 摆放位置为 images/logo.png
+ * Codex改动：打包为 V2Board 主题后优先读取面板设置 logo，否则读取 public/theme/主题名/images/logo.png
  */
 import { buyConfirm, getAppLink, getThemeColor, shopPopup, ticketPopup, userKnow } from "@/config/constant";
 
@@ -22,15 +23,15 @@ export const config = {
     API_CONFIG: {
         // API URL获取方式: 'static'=使用静态URL, 'auto'=自动从当前域名获取
         urlMode: 'static',
-      
+
         // 是否展示后端联通性检测
         showCheckBackend: true,
-      
+
         // 静态URL模式下的基础URL (urlMode = 'static'时使用)
         // 支持字符串形式(单个API地址)或数组形式(多个备选API地址)
         // 多个地址时，会按顺序检测可用性，并使用第一个可用的地址
-        staticBaseUrl: [],
-      
+        staticBaseUrl: ['http://192.168.100.205:181/lufei'],
+
         // 自动获取模式配置 (urlMode = 'auto'时使用)
         autoConfig: {
             // 是否使用相同协议 (http/https)
@@ -47,11 +48,11 @@ export const config = {
     // 是否启用中间件代理API请求
     // 设置为true时，所有API请求将通过中间件转发
     API_MIDDLEWARE_ENABLED: false,
-  
+
     //=======================================================
     // 中间件服务器URL (不含路径) 开源地址 https://github.com/codeman857/EZ-Encrypt-Middleware
     API_MIDDLEWARE_URL: '',
-  
+
     // 中间件加密KEY必须是16位的16进制字符串，必须和中间件key保持一致 在线生成地址 https://www.bejson.com/math/hex_gen/
     API_MIDDLEWARE_KEY: '4c6f8e5f9467dc71',
     //=======================================================
@@ -63,10 +64,10 @@ export const config = {
 
     // ====================  网站基础配置  ====================
     SITE_CONFIG: {
-        siteName: 'EZ-THEME-R',
-        siteDescription: 'EZ-THEME-R is best!',
+        siteName: '网站名',
+        siteDescription: ' 稳定 高速 快捷',
         // copyright会自动使用当前年份
-        copyright: `© ${new Date().getFullYear()} EZ-THEME-R. All Rights Reserved.`,
+        copyright: `© ${new Date().getFullYear()} 网站名. All Rights Reserved.`,
 
         // 是否显示标题中的网站Logo (true=显示, false=隐藏)
         showLogo: true,
@@ -133,7 +134,7 @@ export const config = {
             content: userKnow(),
 
             // 冷却时间（小时），在此时间内不会再次显示弹窗
-            cooldownHours: 0,
+            cooldownHours: 24,
 
             // 等待时间（秒），用户需要等待多少秒才能关闭弹窗，设为0表示无需等待
             closeWaitSeconds: 0
@@ -217,7 +218,7 @@ export const config = {
             content: shopPopup(),
 
             // 冷却时间（小时），在此时间内不会再次显示弹窗
-            cooldownHours: 0,
+            cooldownHours: 1,
 
             // 等待时间（秒），用户需要等待多少秒才能关闭弹窗，设为0表示无需等待
             closeWaitSeconds: 0
@@ -264,12 +265,12 @@ export const config = {
 
         // 是否显示在线设备数量限制 (true=显示, false=隐藏，仅Xiao-V2board支持)
         showOnlineDevicesLimit: true,
-        
+
         // 是否显示导入订阅
         showImportSubscription: true,
 
         // 是否显示签到功能 (true=显示, false=隐藏)
-        showCheckIn: true,
+        showCheckIn: false,
     },
 
     // 客户端下载配置
@@ -456,7 +457,7 @@ export const config = {
             // 链接模式：'auto'=自动使用当前站点域名，'custom'=使用自定义域名
             linkMode: 'custom',
             // 自定义域名，当linkMode为'custom'时使用
-            customDomain: 'https://example.com'
+            customDomain: 'https://invi.网站名.org'
         }
     },
 
@@ -505,7 +506,7 @@ export const config = {
         // 工单图片设置
         isImageHosting: true, // 是否启用工单图片上传功能
         // imgBB 图床 api 设置 前往imgBB注册账号 https://imgbb.com/ 获取 apiKey
-        imgbbApiKey: 'ef0699a181c64b0d1bc9d490004a8d04',
+        imgbbApiKey: '584a74e156d723774e909e1a478b213c',
     },
 
     // 流量明细配置
@@ -525,6 +526,12 @@ export const config = {
 
     // 节点列表配置
     NODES_CONFIG: {
+        // Codex改动：顶部导航“节点”按钮右上角角标配置；text 可改成其他文字，enabled=false 可关闭
+        navBadge: {
+            enabled: true,
+            text: '解锁'
+        },
+
         // 是否显示节点倍率 (true=显示, false=隐藏，若此处为false则allowViewNodeInfo也会为false)
         showNodeRate: true,
 
@@ -543,13 +550,13 @@ export const config = {
         // 客服系统类型: 'crisp', 'chatwoot' 或 'other'
         // 注意：当客服类型为 crisp 或 chatwoot 时，系统会自动向客服系统传递用户数据
         // 包括：用户邮箱、套餐名称、到期时间、可用流量、用户余额
-        type: 'crisp',
+        type: 'chatwoot',
 
         // 客服系统配置代码
         // Crisp 格式: CRISP_WEBSITE_ID="xxxxxx-xxxxxx-xxxxxx-xxxxxx-xxxxxx"
         // Chatwoot 格式: CHATWOOT_TOKEN="你的websiteToken" CHATWOOT_BASE_URL="https://app.chatwoot.com"
         // Other 格式: 直接粘贴客服系统提供的嵌入代码
-        customHtml: 'CRISP_WEBSITE_ID="xxxxxx-xxxxxx-xxxxxx-xxxxxx-xxxxxx"',
+        customHtml: 'CHATWOOT_TOKEN="w7seTLbzWLarvoK5ZLXN3imK" CHATWOOT_BASE_URL="http://154.12.18.186:3000"',
 
         // 客服系统嵌入模式: 'popup'=弹出式页面, 'embed'=嵌入到每个页面
         // 'popup'模式: 点击客服图标会跳转到单独的客服页面
@@ -568,11 +575,11 @@ export const config = {
             traffic: 'traffic',                 // 剩余可用流量
             balance: 'balance',                 // 用户余额
             uuid: 'uuid',                       // 用户唯一标识
-            created_at: 'created_at',           // 注册时间
+            //created_at: 'created_at',           // 注册时间
             used_traffic: 'used_traffic',       // 已使用流量
             total_traffic: 'total_traffic',     // 总流量额度
-            upload: 'upload',                   // 上传流量
-            download: 'download',               // 下载流量
+            //upload: 'upload',                   // 上传流量
+            //download: 'download',               // 下载流量
             telegram_id: 'telegram_id',         // Telegram 绑定ID（为空则显示"未绑定"）
             invite_code: 'invite_code',         // 邀请人的邀请码
             commission_balance: 'commission_balance'  // 佣金余额
@@ -595,16 +602,22 @@ export const config = {
 
     // 设置导航栏第三个位置显示的内容
     NAVIGATION_CONFIG: {
+        // Codex改动：顶部导航额外目录，按数组顺序显示在“仪表盘 / 商店”和“更多”之间
+        // 可选值: 'invite', 'docs', 'tickets', 'nodes', 'orders', 'traffic', 'wallet', 'profile'
+        // 'wallet' 只有 xiao-v2board 支持 非 xiao-v2board 面板请勿设置为 wallet
+        // 设置为空数组 [] 时，将回退使用下面的 thirdNavItem / fourthNavItem 旧配置
+        extraNavItems: ['docs', 'invite', 'nodes', 'orders', 'tickets'],
+
         // 可选值: 'invite', 'docs', 'tickets', 'nodes', 'orders', 'traffic', 'wallet', 'profile'
         // 'wallet' 只有 xiao-v2board 支持 非 xiao-v2board 面板请勿设置为 wallet
         // 默认值为 'invite'
-        thirdNavItem: 'docs',
+        //thirdNavItem: 'docs',
 
         // 可选：第四个导航项（插入在“更多”之前）。为空字符串或未设置则不插入
         // 可选值同上: 'invite', 'docs', 'tickets', 'nodes', 'orders', 'traffic', 'wallet', 'profile'
         // 默认值为 'docs'
         // 注意：如果第三个导航项设置为 'invite'，则第四个导航项不能设置为 'invite'
-        fourthNavItem: 'invite',
+        //fourthNavItem: 'invite',
     },
 
     // More页面自定义卡片配置
@@ -628,7 +641,7 @@ export const config = {
                 title: 'Telegram',
                 description: '加入我们的Telegram频道',
                 svgIcon: '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-telegram" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 10l-4 4l6 6l4 -16l-18 7l4 2l2 6l3 -4" /></svg>',
-                url: 'https://t.me/+M1A9z_HOCT5hOWI5',
+                url: 'https://t.me/work11cloud',
                 openInNewTab: true
             }
             // 可以继续添加更多卡片...

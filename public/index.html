@@ -1,130 +1,148 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="icon" href="./images/logo.png">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="icon" href="./favicon.ico" />
     <!-- 设置初始标题 -->
     <title><%= htmlWebpackPlugin.options.title %></title>
     <!-- 预加载字体 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700" rel="stylesheet" />
     <%= typeof injectCustomScript !== 'undefined' ? injectCustomScript : '' %>
 
     <!-- 全局样式 -->
     <style>
-        @media (min-width: 769px) {
-            html, body, div, main, section, article, aside, nav {
-                scrollbar-width: none !important;
-                -ms-overflow-style: none !important;
-            }
-
-            ::-webkit-scrollbar, ::-webkit-scrollbar-button, ::-webkit-scrollbar-track, ::-webkit-scrollbar-track-piece, ::-webkit-scrollbar-thumb, ::-webkit-scrollbar-corner, ::-webkit-resizer {
-                display: none !important;
-                width: 0 !important;
-                height: 0 !important;
-                background: transparent !important;
-            }
+      @media (min-width: 769px) {
+        html,
+        body,
+        div,
+        main,
+        section,
+        article,
+        aside,
+        nav {
+          scrollbar-width: none !important;
+          -ms-overflow-style: none !important;
         }
 
-        html, body {
-            width: 100%;
-            height: 100%;
+        ::-webkit-scrollbar,
+        ::-webkit-scrollbar-button,
+        ::-webkit-scrollbar-track,
+        ::-webkit-scrollbar-track-piece,
+        ::-webkit-scrollbar-thumb,
+        ::-webkit-scrollbar-corner,
+        ::-webkit-resizer {
+          display: none !important;
+          width: 0 !important;
+          height: 0 !important;
+          background: transparent !important;
         }
+      }
 
-        @media (min-width: 769px) {
-            * {
-                scrollbar-width: none !important;
-                -ms-overflow-style: none !important;
-            }
-        }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+      }
 
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow-x: hidden;
+      @media (min-width: 769px) {
+        * {
+          scrollbar-width: none !important;
+          -ms-overflow-style: none !important;
         }
+      }
 
-        #app {
-            width: 100%;
-            height: 100%;
-        }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+      }
 
-        html.preloader-active, body.preloader-active {
-            overflow: hidden !important;
-        }
+      #app {
+        width: 100%;
+        height: 100%;
+      }
+
+      html.preloader-active,
+      body.preloader-active {
+        overflow: hidden !important;
+      }
     </style>
     <!-- 版本号样式 -->
     <style>
-        .app-version {
-            position: fixed;
-            left: 6px;
-            bottom: 4px;
-            font-size: 9px;
-            color: rgba(0, 0, 0, 0.35);
-            user-select: none;
-            pointer-events: none;
-            z-index: 5;
-        }
+      .app-version {
+        position: fixed;
+        left: 6px;
+        bottom: 4px;
+        font-size: 9px;
+        color: rgba(0, 0, 0, 0.35);
+        user-select: none;
+        pointer-events: none;
+        z-index: 5;
+      }
     </style>
-
-</head>
-<body>
-<div id="app"></div>
-<!-- built files will be auto injected -->
-<!-- 隐蔽版本号 若不想显示版本号 请注释下方 div 标签-->
-<!-- <div class="app-version">v0.3.8</div> -->
+  </head>
+  <body>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+    <!-- 隐蔽版本号 若不想显示版本号 请注释下方 div 标签-->
+    <!-- <div class="app-version">v0.3.8</div> -->
     <script>
-        // 动态更新教程页面的浏览器标题
-        (function() {
-            function updateDocTitle() {
-                // 检查是否在教程详情页
-                if (window.location.hash && window.location.hash.includes('/docs/')) {
-                    // 查找教程内容中的第一个 h1 标题
-                    const observer = new MutationObserver(function(mutations, obs) {
-                        const tutorialSection = document.querySelector('.tutorial-section h1');
-                        if (tutorialSection) {
-                            const title = tutorialSection.textContent.trim();
-                            if (title) {
-                                // 获取网站名称
-                                const siteName = window.EZ_CONFIG && window.EZ_CONFIG.SITE_CONFIG 
-                                    ? window.EZ_CONFIG.SITE_CONFIG.siteName 
-                                    : '路飞 Cloud';
-                                // 更新浏览器标题
-                                document.title = title + ' - ' + siteName;
-                                // 停止观察
-                                obs.disconnect();
-                            }
-                        }
-                    });
-                    
-                    // 开始观察 DOM 变化
-                    observer.observe(document.body, {
-                        childList: true,
-                        subtree: true
-                    });
-                    
-                    // 5秒后停止观察（防止持续观察）
-                    setTimeout(function() {
-                        observer.disconnect();
-                    }, 5000);
+      // 动态更新教程页面的浏览器标题
+      (function () {
+        function updateDocTitle() {
+          // 检查是否在教程详情页
+          if (window.location.hash && window.location.hash.includes("/docs/")) {
+            // 查找教程内容中的第一个 h1 标题
+            const observer = new MutationObserver(function (mutations, obs) {
+              const tutorialSection = document.querySelector(
+                ".tutorial-section h1",
+              );
+              if (tutorialSection) {
+                const title = tutorialSection.textContent.trim();
+                if (title) {
+                  // 获取网站名称
+                  const siteName =
+                    window.EZ_CONFIG && window.EZ_CONFIG.SITE_CONFIG
+                      ? window.EZ_CONFIG.SITE_CONFIG.siteName
+                      : "<%= htmlWebpackPlugin.options.title %>";
+                  // 更新浏览器标题
+                  document.title = title + " - " + siteName;
+                  // 停止观察
+                  obs.disconnect();
                 }
-            }
-            
-            // 监听路由变化
-            window.addEventListener('hashchange', function() {
-                setTimeout(updateDocTitle, 300);
+              }
             });
-            
-            // 页面加载时执行
-            window.addEventListener('load', function() {
-                setTimeout(updateDocTitle, 500);
+
+            // 开始观察 DOM 变化
+            observer.observe(document.body, {
+              childList: true,
+              subtree: true,
             });
-        })();
+
+            // 5秒后停止观察（防止持续观察）
+            setTimeout(function () {
+              observer.disconnect();
+            }, 5000);
+          }
+        }
+
+        // 监听路由变化
+        window.addEventListener("hashchange", function () {
+          setTimeout(updateDocTitle, 300);
+        });
+
+        // 页面加载时执行
+        window.addEventListener("load", function () {
+          setTimeout(updateDocTitle, 500);
+        });
+      })();
     </script>
-</body>
+  </body>
 </html>

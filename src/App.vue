@@ -4,7 +4,7 @@
     <div class="static-layout" v-if="$route.meta.requiresAuth">
       <!-- 网站名称 -->
       <div class="site-logo">
-        <img v-if="siteConfig.showLogo" src="/images/logo.png" alt="Logo" class="site-logo-img" />
+        <img v-if="siteConfig.showLogo" :src="logoPath" alt="Logo" class="site-logo-img" />
         {{ siteConfig.siteName }}
       </div>
 
@@ -138,6 +138,7 @@ import CustomerServiceIcon from '@/components/common/CustomerServiceIcon.vue';
 import CrispEmbed from '@/components/common/CrispEmbed.vue';
 import ChatwootEmbed from '@/components/common/ChatwootEmbed.vue';
 import ResourcePreloader from '@/components/common/ResourcePreloader.vue';
+import { applyThemeFavicon, getThemeAssetPath, installThemeAssetFallbacks } from '@/utils/themeAssets';
 import { IconGift, IconTag } from '@tabler/icons-vue';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
@@ -177,6 +178,7 @@ export default {
     const store = useStore();
     const { applyTheme } = useTheme();
     const siteConfig = ref(SITE_CONFIG);
+    const logoPath = getThemeAssetPath('images/logo.png');
     const cachedRoutes = computed(() => pageCache.getCachedRoutes());
 
     const customerServiceConfig = computed(() => CUSTOMER_SERVICE_CONFIG);
@@ -342,6 +344,10 @@ export default {
     onMounted(() => {
       window.addEventListener('languageChanged', onLanguageChanged);
 
+      // Codex改动：安装主题 logo/favicon 资源加载失败后的顺序回退，并同步标签图标。
+      installThemeAssetFallbacks();
+      applyThemeFavicon();
+
       applyTheme(store.getters.currentTheme);
 
       // 将客服气泡位置配置注入 CSS 变量（复用 iconPosition.mobile）
@@ -383,6 +389,7 @@ export default {
       username,
       avatarUrl,
       siteConfig,
+      logoPath,
       PROFILE_CONFIG,
       SHOP_CONFIG,
       cachedRoutes,

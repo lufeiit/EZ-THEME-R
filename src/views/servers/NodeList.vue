@@ -9,6 +9,17 @@
         @switch-view="handleSwitchView"
       />
 
+      <!-- Codex改动：节点解锁检测总览，方便确认后端是否已返回 unlock_result。 -->
+      <div v-if="nodes && nodes.length > 0" class="unlock-summary">
+        <div>
+          <span class="summary-label">解锁检测数据     (非实时 每天自动更新)</span>
+          <strong>{{ unlockSummary.withUnlock }}/{{ unlockSummary.total }}</strong>
+        </div>
+        <p>
+          {{ unlockSummary.withUnlock > 0 ? '已读取媒体 / AI 解锁结果' : '当前节点接口未返回 unlock_result，卡片将显示暂无解锁数据' }}
+        </p>
+      </div>
+
       <!-- 节点列表状态 -->
       <div v-if="loading" class="nodes-loading">
         <LoadingSpinner />
@@ -36,6 +47,9 @@
 
         <!-- 地图视图 -->
         <MapView v-if="currentView === 'map'" :nodes="nodes" @show-detail="openNodeDetail" />
+
+        <!-- Codex改动：解锁视图，横向展示解锁项目，纵向展示节点。 -->
+        <UnlockTable v-if="currentView === 'unlock'" :nodes="nodes" />
       </template>
 
       <!-- 空状态 -->
@@ -57,7 +71,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject } from 'vue';
+import { ref, computed, onMounted, inject } from 'vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import {
   IconAlertTriangle,
@@ -73,6 +87,7 @@ import NodeDetailModal from '@/components/common/NodeDetailModal.vue';
 import WelcomeCard from './components/WelcomeCard.vue';
 import NodeList from './components/NodeList.vue';
 import MapView from './components/MapView.vue';
+import UnlockTable from './components/UnlockTable.vue';
 
 const $toast = inject('$toast');
 
@@ -84,10 +99,19 @@ const showNodeDetails = ref(NODES_CONFIG.showNodeDetails);
 const showNodeRate = ref(NODES_CONFIG.showNodeRate);
 const allowViewNodeInfo = ref(NODES_CONFIG.allowViewNodeInfo);
 
+// Codex改动：统计节点列表中实际带有 unlock_result 的数量，用于页面顶部提示。
+const unlockSummary = computed(() => {
+  const list = Array.isArray(nodes.value) ? nodes.value : [];
+  return {
+    total: list.length,
+    withUnlock: list.filter(node => node && node.unlock_result).length
+  };
+});
+
 // 用户信息
 const userInfo = ref(null);
 
-// 视图模式：'list' 或 'map'
+// 视图模式：'list'、'map' 或 'unlock'
 const currentView = ref('list');
 
 // 模态框相关
@@ -174,6 +198,38 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
 
+}
+
+.unlock-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.875rem 1rem;
+  border-radius: 10px;
+  background-color: var(--card-bg);
+  border: 1px solid rgba(var(--theme-color-rgb), 0.18);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  .summary-label {
+    display: block;
+    margin-bottom: 0.2rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  strong {
+    font-size: 1.15rem;
+    color: var(--theme-color);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    text-align: right;
+  }
 }
 
 

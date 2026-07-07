@@ -19,6 +19,15 @@
           <IconMap :size="18" />
           <span class="btn-text">地图视图</span>
         </button>
+        <!-- Codex改动：新增节点解锁矩阵视图入口。 -->
+        <button
+          class="view-toggle-btn"
+          :class="{ active: currentView === 'unlock' }"
+          @click="switchView('unlock')"
+        >
+          <IconTable :size="18" />
+          <span class="btn-text">解锁视图</span>
+        </button>
       </div>
     </div>
     <div class="card-body">
@@ -28,7 +37,7 @@
 </template>
 
 <script setup>
-import { IconList, IconMap } from '@tabler/icons-vue';
+import { IconList, IconMap, IconTable } from '@tabler/icons-vue';
 
 // 定义组件属性
 const props = defineProps({

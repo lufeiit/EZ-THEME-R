@@ -778,6 +778,12 @@ export const INVITE_CONFIG = mergeDeep(DEFAULT_INVITE_CONFIG, getConfig('INVITE_
  * 控制节点列表页面的显示内容
  */
 const DEFAULT_NODES_CONFIG = {
+    // Codex改动：顶部导航“节点”按钮右上角角标配置；默认关闭，具体项目可在 src/config/index.js 开启
+    navBadge: {
+        enabled: false,
+        text: '解锁'
+    },
+
     // 是否显示节点倍率 (true=显示, false=隐藏)
     showNodeRate: true,
 
@@ -897,6 +903,11 @@ export const AUTH_CONFIG = mergeDeep(DEFAULT_AUTH_CONFIG, getConfig('AUTH_CONFIG
  * 添加默认导航栏配置
  */
 const DEFAULT_NAVIGATION_CONFIG = {
+    // Codex改动：支持配置多个顶部导航目录，按顺序插入在 "更多" 之前
+    // 可选值: 'invite', 'docs', 'tickets', 'nodes', 'orders', 'traffic', 'wallet', 'profile'
+    // 留空数组时兼容旧的 thirdNavItem / fourthNavItem 配置
+    extraNavItems: [],
+
     // 设置导航栏第三个位置显示的内容
     // 可选值: 'invite', 'docs', 'tickets', 'nodes', 'orders', 'traffic', 'wallet', 'profile'
     thirdNavItem: 'invite',  // 默认显示邀请

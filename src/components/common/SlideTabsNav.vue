@@ -32,6 +32,8 @@
 
             <span v-if="item.name === 'Shop' && showShopBadge" class="badge-dot">{{ $t('menu.hotSale') }}</span>
 
+            <span v-if="item.name === 'Nodes' && showNodeBadge" class="badge-dot">{{ nodeBadgeText }}</span>
+
           </router-link>
 
         </template>
@@ -58,7 +60,7 @@ import { ref, onMounted, watch, nextTick, onBeforeUnmount, computed, reactive, o
 
 import { useRoute, useRouter } from 'vue-router';
 
-import { INVITE_CONFIG, SHOP_CONFIG, NAVIGATION_CONFIG } from '@/utils/baseConfig';
+import { INVITE_CONFIG, SHOP_CONFIG, NAVIGATION_CONFIG, NODES_CONFIG } from '@/utils/baseConfig';
 
 import IconDashboard from '@/components/icons/IconDashboard.vue';
 
@@ -128,6 +130,19 @@ export default {
 
     });
 
+    // Codex改动：节点导航右上角角标，文本从 NODES_CONFIG.navBadge.text 读取
+    const showNodeBadge = computed(() => {
+
+      return NODES_CONFIG && NODES_CONFIG.navBadge && NODES_CONFIG.navBadge.enabled === true;
+
+    });
+
+    const nodeBadgeText = computed(() => {
+
+      return (NODES_CONFIG && NODES_CONFIG.navBadge && NODES_CONFIG.navBadge.text) || '解锁';
+
+    });
+
 
 
     const sliderState = reactive({
@@ -170,6 +185,22 @@ export default {
 
 
 
+    // Codex改动：统一读取多个顶部导航目录；没有配置数组时回退旧的第三/第四项配置
+    const getConfiguredTopNavItems = () => {
+      const configuredItems = Array.isArray(NAVIGATION_CONFIG?.extraNavItems)
+        ? NAVIGATION_CONFIG.extraNavItems.filter(Boolean)
+        : [];
+
+      if (configuredItems.length > 0) {
+        return configuredItems;
+      }
+
+      return [
+        NAVIGATION_CONFIG?.thirdNavItem || 'invite',
+        NAVIGATION_CONFIG?.fourthNavItem || ''
+      ].filter(Boolean);
+    };
+
     // 替换原有的 navItems 定义
     const getNavItems = () => {
 
@@ -181,10 +212,6 @@ export default {
             { title: 'Shop', path: '/shop', name: 'Shop', icon: 'IconShop', i18nKey: 'shop' },
 
         ];
-
-        // 获取第三、第四个导航项配置
-        const thirdNavItem = NAVIGATION_CONFIG?.thirdNavItem || 'invite';
-        const fourthNavItem = NAVIGATION_CONFIG?.fourthNavItem || '';
 
         // 导航项配置映射（可复用）
         const navMap = {
@@ -218,17 +245,15 @@ export default {
 
         };
 
-        // 添加配置的第三个导航项（有效值才插入）
-        const third = navMap[thirdNavItem];
-        if (third) {
-          baseNavItems.push(third);
-        }
-
-        // 可选：添加第四个导航项（非空、有效且不与第三重复时插入）
-        const fourth = fourthNavItem && navMap[fourthNavItem] ? navMap[fourthNavItem] : null;
-        if (fourth && fourth.i18nKey !== (third?.i18nKey)) {
-          baseNavItems.push(fourth);
-        }
+        // Codex改动：按配置数组插入多个顶部导航项，并自动去重无效项
+        const usedKeys = new Set();
+        getConfiguredTopNavItems().forEach((itemKey) => {
+          const navItem = navMap[itemKey];
+          if (navItem && !usedKeys.has(itemKey)) {
+            baseNavItems.push(navItem);
+            usedKeys.add(itemKey);
+          }
+        });
 
         // 添加更多选项
         baseNavItems.push({ title: 'More', path: '/more', name: 'More', icon: 'IconMore', i18nKey: 'more' });
@@ -913,7 +938,11 @@ export default {
 
       showInviteBadge,
 
-      showShopBadge
+      showShopBadge,
+
+      showNodeBadge,
+
+      nodeBadgeText
 
     };
 
@@ -983,7 +1012,20 @@ function debounce(fn, delay) {
 
     display: inline-block;
 
-    overflow: hidden;
+    // Codex改动：顶部目录数量变多时允许横向滚动，避免小屏被截断
+    max-width: calc(100vw - 24px);
+
+    overflow-x: auto;
+
+    overflow-y: hidden;
+
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+
+      display: none;
+
+    }
 
   }
 
@@ -994,6 +1036,9 @@ function debounce(fn, delay) {
     display: flex;
 
     position: relative;
+
+    // Codex改动：保持多目录导航按内容宽度排列，由外层负责滚动
+    width: max-content;
 
     
 

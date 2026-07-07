@@ -47,8 +47,15 @@ read_env_value() {
 update_env_value() {
     local key="$1"
     local value="$2"
+    local tmp_file
     if grep -q "^${key}" "$ENV_FILE" 2>/dev/null; then
-        sed -i '' "s|^${key}[[:space:]]*=.*|${key} = ${value}|" "$ENV_FILE"
+        # Codex改动：不用 sed -i ''，避免 Linux 下把替换表达式误当文件名导致打包中断。
+        tmp_file=$(mktemp)
+        sed "s|^${key}[[:space:]]*=.*|${key} = ${value}|" "$ENV_FILE" > "$tmp_file"
+        cat "$tmp_file" > "$ENV_FILE"
+        rm -f "$tmp_file"
+    else
+        printf "%s = %s\n" "$key" "$value" >> "$ENV_FILE"
     fi
 }
 
