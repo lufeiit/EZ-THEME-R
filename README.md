@@ -1,109 +1,295 @@
-# V3Board User 前端项目
+# EZ-THEME-R V2Board 前端主题
 
-本项目基于原版 [Github仓库地址](https://github.com/EZTHEME/EZ_THEME)，二次开发
+本项目基于 [EZTHEME/EZ_THEME](https://github.com/EZTHEME/EZ_THEME) 二次开发，目标是作为 V2Board 用户前端主题使用。
 
-一个美观、现代的V2Board管理后台前端项目，基于Vue 3开发。
+当前版本已加入 V2Board 标准主题打包、节点解锁展示、导航栏扩展、主题目录资源路径适配等修改。
 
-## 特性
+## 主要修改
 
-- 🎨 美观的UI设计，简约高端
-- 🌓 支持亮色/暗色主题切换
-- 🌍 内置国际化支持（中文/英文）
-- 📱 响应式设计，适配各种设备
-- 🔒 完善的登录认证系统
-- 🚀 模块化的代码结构，易于维护
+### V2Board 主题打包
 
-## 技术栈
+- 新增 `npm run build:v2board-theme`
+- 新增 `scripts/build-v2board-theme.sh`
+- 打包结果输出到：
 
-- Vue 3 - 渐进式JavaScript框架
-- Vue Router - 官方路由管理器
-- Vuex - 状态管理模式
-- Axios - 基于Promise的HTTP客户端
-- Sass - CSS预处理器
-- Vue I18n - 国际化解决方案
-
-## 项目结构
-
+```bash
+dist-v2board/ez-theme-r/
+dist-v2board/ez-theme-r.zip
 ```
+
+- 自动生成 V2Board 需要的：
+
+```bash
+dashboard.blade.php
+config.json
+favicon.ico
+```
+
+- 主题资源路径不写死主题名，支持安装到不同主题目录。
+
+### Logo 和图标路径
+
+已修复打包成 V2Board 主题后 Logo 读取错误的问题。
+
+优先级：
+
+```text
+V2Board 后台设置的 logo
+-> /theme/当前主题/images/logo.png
+-> /images/logo.png
+```
+
+浏览器 favicon 使用：
+
+```text
+/theme/当前主题/favicon.ico
+-> /favicon.ico
+```
+
+相关文件：
+
+```bash
+src/utils/themeAssets.js
+src/App.vue
+src/views/landing/LandingPage.vue
+src/views/auth/**/*
+scripts/build-v2board-theme.sh
+```
+
+### 节点解锁视图
+
+在 `/nodes` 页面新增了解锁视图：
+
+- 节点为纵向
+- 右侧分为流媒体和 AI
+- 支持单选和多选筛选
+- 支持手机端横向滚动
+- 表头支持类似表格冻结第一行
+
+当前显示项目：
+
+流媒体：
+
+```text
+Netflix
+Disney+
+DAZN
+PrimeVideo
+YouTube会员
+TikTok
+spotify注册
+```
+
+AI：
+
+```text
+Copilot
+ChatGPT
+Gemini
+Claude
+Mistral
+Quora
+Perplexity
+Grok
+```
+
+解锁数据来自 V2Board 后端节点接口返回的 `unlock_result` 字段。后端读取路径为：
+
+```bash
+/www/wwwroot/v2board/storage/app/unlock-results/all.json
+```
+
+### 导航栏扩展
+
+顶部导航支持在配置文件中额外显示多个目录。
+
+配置位置：
+
+```bash
+src/config/index.js
+```
+
+配置项：
+
+```js
+NAVIGATION_CONFIG: {
+  extraNavItems: ['docs', 'invite', 'nodes', 'orders', 'tickets']
+}
+```
+
+### 节点导航角标
+
+节点导航支持右上角文字角标，例如显示“解锁”。
+
+配置位置：
+
+```bash
+src/config/index.js
+```
+
+配置项在 `NODES_CONFIG.navBadge`。
+
+## 目录说明
+
+```bash
 src/
-├── api/                # API接口
-├── assets/             # 静态资源
-│   └── styles/         # 样式文件
-│       ├── base/       # 基础样式
-│       ├── components/ # 组件样式
-│       └── layouts/    # 布局样式
-├── components/         # 公共组件
-├── composables/        # 组合式API
-├── i18n/               # 国际化
-│   └── locales/        # 语言包
-├── router/             # 路由配置
-├── store/              # Vuex存储
-├── utils/              # 工具函数
-└── views/              # 页面视图
+├── api/                    # API 请求
+├── assets/                 # 静态资源
+├── components/             # 公共组件
+├── config/                 # 主题配置
+├── router/                 # 路由
+├── store/                  # Vuex
+├── utils/                  # 工具函数
+└── views/                  # 页面
+
+scripts/
+└── build-v2board-theme.sh  # V2Board 标准主题打包脚本
+
+public/
+├── images/                 # public 图片
+├── favicon.ico             # 浏览器图标
+└── index.html              # Vue 入口模板
 ```
 
-## 开始使用
-
-### 安装依赖
+## 安装依赖
 
 ```bash
 npm install
 ```
 
-### 开发环境运行
+## 开发运行
 
 ```bash
 npm run serve
 ```
 
-### 生产环境构建（推荐）
+默认访问：
 
-使用交互式打包脚本，按提示操作即可完成打包：
+```text
+http://localhost:8080
+```
+
+局域网访问示例：
+
+```text
+http://服务器IP:8080
+```
+
+
+## 普通生产打包
+
+交互式打包：
 
 ```bash
 bash build.sh
 ```
 
-脚本会自动完成以下步骤：
-
-1. **检测依赖** — 如未安装 `node_modules`，自动执行 `npm install`
-2. **交互式配置** — 逐项提示你设置以下参数：
-
-| 配置项 | 说明 | 默认值 |
-|--------|------|--------|
-| 网站标题 | 浏览器标签页显示的名称 | `EZ-THEME-R` |
-| 反调试 | 阻止 F12 开发者工具 | 开启 |
-| 独立配置文件 | 站点配置可热更新，无需重新打包 | 关闭 |
-| 配置文件混淆 | 仅在开启独立配置文件后可选 | 关闭 |
-
-3. **确认并打包** — 预览最终配置，确认后自动执行 `npm run build`
-
-> 💡 每一项都有默认值，直接按回车即可保持当前设置不变。
-
-打包完成后，产物在 `dist/` 目录中，直接部署即可。
-
-### 手动构建
-
-如果不使用打包脚本，也可以先手动修改 `.env.production` 文件，然后执行：
+手动打包：
 
 ```bash
 npm run build
 ```
 
-## 自定义配置
+普通打包产物：
 
-### 主题配置
+```bash
+dist/
+```
 
-主题颜色和其他配置可以在 `src/config/index.js` 文件中修改。
+## V2Board 主题打包
 
-### API配置
+推荐使用：
 
-API基础URL可以在 `src/config/index.js` 文件中修改。
+```bash
+npm run build:v2board-theme
+```
 
-## 浏览器支持
+等价命令：
 
-- Chrome
-- Firefox
-- Safari
-- Edge
-- 其他现代浏览器
+```bash
+bash scripts/build-v2board-theme.sh
+```
+
+输出：
+
+```bash
+dist-v2board/ez-theme-r/
+dist-v2board/ez-theme-r.zip
+```
+
+自定义主题目录名：
+
+```bash
+V2BOARD_THEME_NAME=my-theme npm run build:v2board-theme
+```
+
+如果 `dist/` 已经是最新，只想重新整理 V2Board 主题包：
+
+```bash
+SKIP_BUILD=true bash scripts/build-v2board-theme.sh
+```
+
+## 部署到 V2Board
+
+将主题包上传到 V2Board：
+
+```bash
+dist-v2board/ez-theme-r.zip
+```
+
+或直接复制目录：
+
+```bash
+cp -a dist-v2board/ez-theme-r /www/wwwroot/v2board/public/theme/
+```
+
+最终目录应为：
+
+```bash
+/www/wwwroot/v2board/public/theme/ez-theme-r/
+```
+
+然后在 V2Board 后台切换主题为：
+
+```text
+ez-theme-r
+```
+
+## 节点解锁数据要求
+
+前端不直接读取 JSON 文件，而是读取 V2Board 用户节点接口返回的数据。
+
+后端需要把解锁结果注入节点接口：
+
+```json
+{
+  "unlock_result": {
+    "media": {},
+    "ai": {},
+    "node": {}
+  }
+}
+```
+
+解锁结果 JSON 推荐保存位置：
+
+```bash
+/www/wwwroot/v2board/storage/app/unlock-results/all.json
+```
+
+示例服务字段：
+
+```text
+media.netflix
+media.disney_plus
+media.amazon_prime_video
+media.youtube_premium
+ai.microsoft_copilot
+ai.openai_chatgpt
+ai.google_gemini
+ai.anthropic_claude
+ai.mistral_ai
+ai.quora_poe
+ai.perplexity_ai
+ai.x_ai_grok
+```
