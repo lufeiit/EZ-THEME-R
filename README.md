@@ -36,14 +36,13 @@ favicon.ico
 ```text
 V2Board 后台设置的 logo
 -> /theme/当前主题/images/logo.png
--> /images/logo.png
+-> /logo.png
 ```
 
 浏览器 favicon 使用：
 
 ```text
-/theme/当前主题/favicon.ico
--> /favicon.ico
+/favicon.ico
 ```
 
 相关文件：
@@ -148,6 +147,7 @@ scripts/
 public/
 ├── images/                 # public 图片
 ├── favicon.ico             # 浏览器图标
+├── logo.png                # 根目录 Logo 兜底
 └── index.html              # Vue 入口模板
 ```
 
@@ -202,6 +202,13 @@ dist/
 
 ```bash
 npm run build:v2board-theme
+```
+
+完整打包会先自动清空：
+
+```bash
+dist/
+dist-v2board/
 ```
 
 等价命令：

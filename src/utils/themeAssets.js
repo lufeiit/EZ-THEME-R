@@ -90,7 +90,7 @@ export function getThemeLogoFallbackPaths() {
 
   return uniquePaths([
     getThemeAssetPath('images/logo.png', { preferPanelLogo: false }),
-    '/images/logo.png'
+    '/logo.png'
   ]);
 }
 
@@ -106,10 +106,8 @@ export function getThemeFaviconFallbackPaths() {
     }
   }
 
-  return uniquePaths([
-    getThemeAssetPath('favicon.ico', { preferPanelLogo: false }),
-    '/favicon.ico'
-  ]);
+  // Codex改动：浏览器标签图标固定读取站点根目录 favicon.ico，不从主题目录读取。
+  return uniquePaths(['/favicon.ico']);
 }
 
 export function getThemeAssetPath(assetPath, options = {}) {

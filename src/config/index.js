@@ -2,7 +2,7 @@
  * 外部配置文件
  * index.html 中可以搜索 EZ 将其替换为您的网站名称
  * 旧说明：logo 摆放位置为 images/logo.png
- * Codex改动：打包为 V2Board 主题后优先读取面板设置 logo，否则读取 public/theme/主题名/images/logo.png
+ * Codex改动：打包为 V2Board 主题后网站 Logo 优先读取面板设置，其次读取 public/theme/主题名/images/logo.png，最后读取 public/logo.png
  */
 import { buyConfirm, getAppLink, getThemeColor, shopPopup, ticketPopup, userKnow } from "@/config/constant";
 
@@ -144,14 +144,14 @@ export const config = {
     // 认证页面布局配置
     AUTH_LAYOUT_CONFIG: {
         // 布局类型: 'center' 为居中卡片布局, 'split' 为左右分栏布局
-        layoutType: 'center',
+        layoutType: 'solit',
 
         // 左右分栏布局配置 (仅当 layoutType 为 'split' 时生效)
         splitLayout: {
             // 左侧区域内容配置
             leftContent: {
                 // 左侧背景图片URL或路径 (如不设置则不设置图片背景)
-                backgroundImage: 'https://www.loliapi.com/acg',
+                backgroundImage: 'https://uapis.cn/api/v1/random/image?category=acg',
 
                 // 左上角网站名称配置
                 siteName: {
@@ -164,7 +164,7 @@ export const config = {
                 // 左下角问候语配置
                 greeting: {
                     // 是否显示问候语
-                    show: false,
+                    show: true,
                     // 文字颜色 (white或black)
                     color: 'white'
                 }
@@ -187,7 +187,7 @@ export const config = {
         hidePeriodTabs: false, // 默认显示周期选择标签
 
         // 库存紧张的阈值（当库存数量小于等于此值且大于0时显示库存紧张）
-        lowStockThreshold: 5,
+        lowStockThreshold: 50,
 
         // 是否启用周期折扣计算显示 (true=启用, false=禁用)
         enableDiscountCalculation: false, // 默认启用
@@ -218,7 +218,7 @@ export const config = {
             content: shopPopup(),
 
             // 冷却时间（小时），在此时间内不会再次显示弹窗
-            cooldownHours: 1,
+            cooldownHours: 0,
 
             // 等待时间（秒），用户需要等待多少秒才能关闭弹窗，设为0表示无需等待
             closeWaitSeconds: 0
@@ -276,14 +276,14 @@ export const config = {
     // 客户端下载配置
     CLIENT_CONFIG: {
         // 整个下载卡片显示控制
-        showDownloadCard: true,
+        showDownloadCard: false,
 
         // 平台显示控制 (true=显示, false=隐藏)
         showIOS: true,
         showAndroid: true,
         showMacOS: true,
         showWindows: true,
-        showLinux: true,
+        showLinux: false,
         showOpenWrt: false,
 
         // 客户端下载链接  //可以改成文档链接直接在新标签页打开
@@ -300,43 +300,43 @@ export const config = {
 
         // iOS平台
         showShadowrocket: true,
-        showSurge: true,
+        showSurge: false,
         showStash: true,
-        showQuantumultX: true,
-        showHiddifyIOS: true,
-        showSingboxIOS: true,
-        showLoon: true,
+        showQuantumultX: false,
+        showHiddifyIOS: false,
+        showSingboxIOS: false,
+        showLoon: false,
 
         // Android平台客户端
         showFlClashAndroid: true,
         showV2rayNG: true,
-        showClashAndroid: true,
-        showSurfboard: true,
+        showClashAndroid: false,
+        showSurfboard: false,
         showClashMetaAndroid: true,
-        showNekobox: true,
+        showNekobox: false,
         showSingboxAndroid: true,
-        showHiddifyAndroid: true,
+        showHiddifyAndroid: false,
 
         // Windows平台客户端
         showFlClashWindows: true,
         showClashVergeWindows: true,
         showClashWindows: true,
-        showNekoray: true,
+        showNekoray: false,
         showSingboxWindows: true,
-        showHiddifyWindows: true,
+        showHiddifyWindows: false,
 
         // MacOS平台客户端
         showFlClashMac: true,
         showClashVergeMac: true,
-        showClashX: true,
+        showClashX: false,
         showClashMetaX: true,
-        showSurgeMac: true,
+        showSurgeMac: false,
         showStashMac: true,
-        showQuantumultXMac: true,
-        showSingboxMac: true,
-        showHiddifyMac: true
+        showQuantumultXMac: false,
+        showSingboxMac: false,
+        showHiddifyMac: false
     },
-
+    
     // ================ Xiao 版本的配置 =======================
 
     // 用户中心页面配置
@@ -506,7 +506,7 @@ export const config = {
         // 工单图片设置
         isImageHosting: true, // 是否启用工单图片上传功能
         // imgBB 图床 api 设置 前往imgBB注册账号 https://imgbb.com/ 获取 apiKey
-        imgbbApiKey: '584a74e156d723774e909e1a478b213c',
+        imgbbApiKey: '#',
     },
 
     // 流量明细配置
@@ -518,7 +518,7 @@ export const config = {
         showTrafficTable: true, // 默认启用
 
         // 显示多少天的流量记录
-        daysToShow: 30, // 默认显示30天
+        daysToShow: 90, // 默认显示90天
 
         // 流量趋势图是否聚合每日流量 (如果你的节点倍率全为1倍则无需开启)
         sumDailyTraffic: false // 默认禁用
@@ -556,7 +556,7 @@ export const config = {
         // Crisp 格式: CRISP_WEBSITE_ID="xxxxxx-xxxxxx-xxxxxx-xxxxxx-xxxxxx"
         // Chatwoot 格式: CHATWOOT_TOKEN="你的websiteToken" CHATWOOT_BASE_URL="https://app.chatwoot.com"
         // Other 格式: 直接粘贴客服系统提供的嵌入代码
-        customHtml: 'CHATWOOT_TOKEN="w7seTLbzWLarvoK5ZLXN3imK" CHATWOOT_BASE_URL="http://154.12.18.186:3000"',
+        customHtml: 'CHATWOOT_TOKEN="w7seTLbzWLarvoK5ZLXN3imK" CHATWOOT_BASE_URL="http://192.168.100.252:3000"',
 
         // 客服系统嵌入模式: 'popup'=弹出式页面, 'embed'=嵌入到每个页面
         // 'popup'模式: 点击客服图标会跳转到单独的客服页面

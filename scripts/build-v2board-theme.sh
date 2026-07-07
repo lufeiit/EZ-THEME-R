@@ -12,6 +12,8 @@ ZIP_PATH="${OUT_DIR}/${THEME_NAME}.zip"
 cd "${ROOT_DIR}"
 
 if [ "${SKIP_BUILD:-false}" != "true" ]; then
+  # Codex改动：完整打包前先清空旧产物，避免 dist/dist-v2board 残留文件影响观察和部署。
+  rm -rf "${ROOT_DIR}/dist" "${OUT_DIR}"
   # Codex改动：V2Board 主题目录可能改名，生产包不能把异步分包路径写死到某个主题名。
   # 使用 webpack publicPath=auto，让运行时根据入口 JS 地址自动推导 /theme/{当前主题}/。
   # Codex改动：限制 Node 构建堆内存，避免低内存服务器打包时被系统 OOM 直接 Killed。
@@ -110,15 +112,21 @@ function formatBladeShell(source) {
 }
 
 let html = fs.readFileSync(indexPath, 'utf8');
-// Codex改动：把 V2Board 运行时主题目录和 logo/favicon 回退顺序注入前端。
-const faviconBlade = "/theme/{{$theme}}/favicon.ico";
+// Codex改动：同时格式化 dist/index.html，方便直接检查普通构建入口文件。
+const distIndexPath = path.resolve(process.cwd(), 'dist/index.html');
+if (fs.existsSync(distIndexPath)) {
+  fs.writeFileSync(distIndexPath, formatBladeShell(html), 'utf8');
+}
+
+// Codex改动：把 V2Board 运行时主题目录和 logo 回退顺序注入前端；favicon 固定读取站点根目录。
+const faviconBlade = "/favicon.ico";
 const themeAssetsScript = `<script>
   window.EZ_THEME_ASSETS = {
     themeBase: "/theme/{{$theme}}/",
     logo: {!! json_encode($logo ?: '/theme/' . $theme . '/images/logo.png') !!},
-    logoFallbacks: {!! json_encode(array_values(array_filter([$logo ?: null, '/theme/' . $theme . '/images/logo.png', '/images/logo.png']))) !!},
+    logoFallbacks: {!! json_encode(array_values(array_filter([$logo ?: null, '/theme/' . $theme . '/images/logo.png', '/logo.png']))) !!},
     favicon: "${faviconBlade}",
-    faviconFallbacks: ["${faviconBlade}", "/favicon.ico"]
+    faviconFallbacks: ["${faviconBlade}"]
   };
 </script>`;
 
