@@ -115,11 +115,39 @@ export default {
       return CUSTOMER_SERVICE_CONFIG?.type || "crisp";
     });
 
+    const syncCrispIdentity = () => {
+      const candidates = [
+        userInfo.value,
+        userInfo.value?.data,
+        userSubscribe.value,
+        userSubscribe.value?.data,
+        store.getters.userInfo,
+      ];
+      let userEmail = candidates.find((item) => item?.email)?.email || "";
+
+      if (!userEmail) {
+        try {
+          const storedUser = JSON.parse(
+            localStorage.getItem("userInfo") || "null",
+          );
+          userEmail = storedUser?.email || "";
+        } catch (error) {
+          console.error("解析localStorage用户数据失败:", error);
+        }
+      }
+
+      if (userEmail) {
+        Crisp.user.setEmail(userEmail);
+        Crisp.user.setNickname(userEmail.split("@")[0]);
+      }
+    };
+
     const initCrisp = () => {
       if (serviceType.value !== "crisp") return;
 
       if (window.CRISP_INITIALIZED) {
         try {
+          syncCrispIdentity();
           Crisp.chat.show();
           Crisp.chat.open();
           loading.value = false;
@@ -187,7 +215,7 @@ export default {
           }
 
           if (!userEmail) {
-            const storedUser = localStorage.getItem("user");
+            const storedUser = localStorage.getItem("userInfo");
 
             if (storedUser) {
               try {

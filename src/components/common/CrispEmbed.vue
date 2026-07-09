@@ -62,6 +62,11 @@ export default {
         try {
           updateCrispConfig();
 
+          if (store.getters.isLoggedIn) {
+            await fetchUserData();
+            setUserDataToCrisp();
+          }
+
           return;
         } catch (error) {
           console.error("更新Crisp配置失败:", error);
@@ -89,6 +94,10 @@ export default {
           Crisp.setPosition("left");
         }
 
+        window.CRISP_INITIALIZED = true;
+
+        crispInitialized.value = true;
+
         if (store.getters.isLoggedIn) {
           await fetchUserData();
 
@@ -97,9 +106,11 @@ export default {
 
         setCrispStyles();
 
-        window.CRISP_INITIALIZED = true;
-
-        crispInitialized.value = true;
+        Crisp.session.onLoaded(() => {
+          if (store.getters.isLoggedIn) {
+            setUserDataToCrisp();
+          }
+        });
       } catch (error) {
         console.error("初始化Crisp客服系统失败:", error);
       }
@@ -199,8 +210,6 @@ export default {
     };
 
     const setUserDataToCrisp = () => {
-      if (!crispInitialized.value) return;
-
       try {
         let userEmail = extractUserEmail();
 
@@ -241,6 +250,12 @@ export default {
     const extractUserEmail = () => {
       let userEmail = "";
 
+      const storeUser = store.getters.userInfo;
+
+      if (storeUser && typeof storeUser === "object" && storeUser.email) {
+        userEmail = storeUser.email;
+      }
+
       if (userInfo.value) {
         if (typeof userInfo.value === "object") {
           if (userInfo.value.email) {
@@ -265,7 +280,7 @@ export default {
       }
 
       if (!userEmail) {
-        const storedUser = localStorage.getItem("user");
+        const storedUser = localStorage.getItem("userInfo");
 
         if (storedUser) {
           try {
