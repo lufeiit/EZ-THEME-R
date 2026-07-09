@@ -17,6 +17,16 @@ if (typeof window !== 'undefined') {
   window.CHATWOOT_INITIALIZED = window.CHATWOOT_INITIALIZED || false;
 }
 
+const DEPRECATED_CHATWOOT_ATTRIBUTES = [
+  'uuid',
+  'traffic',
+  'created_at',
+  'invite_code',
+  'v2board_upload',
+  'v2board_download',
+  'v2board_inviter_email'
+];
+
 export default {
   name: 'ChatwootEmbed',
   
@@ -251,7 +261,6 @@ export default {
         // 提取所有用户数据
         const planName = extractPlanName();
         const expireDate = extractExpireDate();
-        const remainingGB = calculateRemainingTraffic();
         const balance = extractBalance();
         const trafficDetails = calculateTrafficDetails();
         const userMeta = extractUserMeta();
@@ -262,7 +271,6 @@ export default {
         
         if (attrKeys.plan) customAttrs[attrKeys.plan] = planName;
         if (attrKeys.expires) customAttrs[attrKeys.expires] = expireDate;
-        if (attrKeys.traffic) customAttrs[attrKeys.traffic] = remainingGB + ' GB';
         if (attrKeys.balance) customAttrs[attrKeys.balance] = balance + ' ' + currencySymbol.value;
         if (attrKeys.created_at) customAttrs[attrKeys.created_at] = userMeta.created_at || '无';
         if (attrKeys.used_traffic) customAttrs[attrKeys.used_traffic] = trafficDetails.usedGB + ' GB';
@@ -290,6 +298,12 @@ export default {
               : String(relationshipMeta.deviceLimit);
         }
         
+        if (typeof window.$chatwoot.deleteCustomAttribute === 'function') {
+          DEPRECATED_CHATWOOT_ATTRIBUTES.forEach((key) => {
+            window.$chatwoot.deleteCustomAttribute(key);
+          });
+        }
+
         if (Object.keys(customAttrs).length > 0) {
           window.$chatwoot.setCustomAttributes(customAttrs);
         }
@@ -368,43 +382,6 @@ export default {
       }
       
       return expireDate;
-    };
-    
-    const calculateRemainingTraffic = () => {
-      let transferEnable = 0;
-      let u = 0;
-      let d = 0;
-      
-      if (userSubscribe.value) {
-        if (typeof userSubscribe.value === 'object') {
-          if (userSubscribe.value.transfer_enable !== undefined) {
-            transferEnable = userSubscribe.value.transfer_enable || 0;
-            u = userSubscribe.value.u || 0;
-            d = userSubscribe.value.d || 0;
-          } else if (userSubscribe.value.data && userSubscribe.value.data.transfer_enable !== undefined) {
-            transferEnable = userSubscribe.value.data.transfer_enable || 0;
-            u = userSubscribe.value.data.u || 0;
-            d = userSubscribe.value.data.d || 0;
-          }
-        }
-      } 
-      
-      if (transferEnable === 0 && userInfo.value) {
-        if (typeof userInfo.value === 'object') {
-          if (userInfo.value.transfer_enable !== undefined) {
-            transferEnable = userInfo.value.transfer_enable || 0;
-            u = userInfo.value.u || 0;
-            d = userInfo.value.d || 0;
-          } else if (userInfo.value.data && userInfo.value.data.transfer_enable !== undefined) {
-            transferEnable = userInfo.value.data.transfer_enable || 0;
-            u = userInfo.value.data.u || 0;
-            d = userInfo.value.data.d || 0;
-          }
-        }
-      }
-      
-      const remainingBytes = transferEnable - (u + d);
-      return (remainingBytes / (1024 * 1024 * 1024)).toFixed(2);
     };
     
     const extractBalance = () => {

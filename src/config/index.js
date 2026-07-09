@@ -572,7 +572,6 @@ export const config = {
         chatwootAttributes: {
             plan: 'plan',                       // 套餐名称
             expires: 'expires',                 // 到期时间
-            traffic: 'traffic',                 // 剩余可用流量
             balance: 'balance',                 // 用户余额
             created_at: 'v2board_registered_at', // 注册时间（Text，无数据时显示"无"）
             used_traffic: 'used_traffic',       // 已使用流量
