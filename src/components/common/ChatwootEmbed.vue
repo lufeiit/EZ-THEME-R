@@ -22,8 +22,6 @@ const DEPRECATED_CHATWOOT_ATTRIBUTES = [
   'traffic',
   'created_at',
   'invite_code',
-  'v2board_upload',
-  'v2board_download',
   'v2board_inviter_email'
 ];
 
