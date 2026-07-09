@@ -144,7 +144,7 @@ export const config = {
     // 认证页面布局配置
     AUTH_LAYOUT_CONFIG: {
         // 布局类型: 'center' 为居中卡片布局, 'split' 为左右分栏布局
-        layoutType: 'solit',
+        layoutType: 'split',
 
         // 左右分栏布局配置 (仅当 layoutType 为 'split' 时生效)
         splitLayout: {
@@ -556,7 +556,7 @@ export const config = {
         // Crisp 格式: CRISP_WEBSITE_ID="xxxxxx-xxxxxx-xxxxxx-xxxxxx-xxxxxx"
         // Chatwoot 格式: CHATWOOT_TOKEN="你的websiteToken" CHATWOOT_BASE_URL="https://app.chatwoot.com"
         // Other 格式: 直接粘贴客服系统提供的嵌入代码
-        customHtml: 'CHATWOOT_TOKEN="w7seTLbzWLarvoK5ZLXN3imK" CHATWOOT_BASE_URL="http://192.168.100.252:3000"',
+        customHtml: 'CHATWOOT_TOKEN="U7uoDov1wUCx1z7wSBbpVvi9" CHATWOOT_BASE_URL="https://app.chatwoot.com"',
 
         // 客服系统嵌入模式: 'popup'=弹出式页面, 'embed'=嵌入到每个页面
         // 'popup'模式: 点击客服图标会跳转到单独的客服页面
@@ -574,15 +574,16 @@ export const config = {
             expires: 'expires',                 // 到期时间
             traffic: 'traffic',                 // 剩余可用流量
             balance: 'balance',                 // 用户余额
-            uuid: 'uuid',                       // 用户唯一标识
-            //created_at: 'created_at',           // 注册时间
+            created_at: 'v2board_registered_at', // 注册时间（Text，无数据时显示"无"）
             used_traffic: 'used_traffic',       // 已使用流量
             total_traffic: 'total_traffic',     // 总流量额度
-            //upload: 'upload',                   // 上传流量
-            //download: 'download',               // 下载流量
+            //upload: 'v2board_upload',            // 上传流量（避开 Chatwoot 默认键）
+            //download: 'v2board_download',        // 下载流量（避开 Chatwoot 默认键）
             telegram_id: 'telegram_id',         // Telegram 绑定ID（为空则显示"未绑定"）
-            invite_code: 'invite_code',         // 邀请人的邀请码
-            commission_balance: 'commission_balance'  // 佣金余额
+            commission_balance: 'commission_balance', // 佣金余额
+            invited_users: 'v2board_invited_users',   // 已邀请用户数（Text，无数据时显示"无"）
+            online_devices: 'v2board_online_devices', // 当前在线设备数（Text，无数据时显示"无"）
+            device_limit: 'v2board_device_limit'      // 套餐限制设备数（Text，无数据时显示"无"）
         },
 
         // 图标位置配置

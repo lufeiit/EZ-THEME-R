@@ -9,6 +9,7 @@
 import { onMounted, onUnmounted, computed, watch, ref } from 'vue';
 import { useStore } from 'vuex';
 import { getUserInfo, getCommConfig, getUserSubscribe } from '@/api/user';
+import { getInviteData } from '@/api/invite';
 import { CUSTOMER_SERVICE_CONFIG } from '@/utils/baseConfig';
 import { formatDate } from '@/utils/formatters';
 
@@ -23,6 +24,7 @@ export default {
     const store = useStore();
     const userInfo = ref(null);
     const userSubscribe = ref(null);
+    const inviteData = ref(null);
     const currencySymbol = ref('¥');
     const chatwootInitialized = ref(window.CHATWOOT_INITIALIZED || false);
     const isMobile = ref(false);
@@ -58,6 +60,9 @@ export default {
       
       if (window.CHATWOOT_INITIALIZED && chatwootInitialized.value) {
         try {
+          if (store.getters.isLoggedIn) {
+            await fetchUserData();
+          }
           updateChatwootUser();
           return;
         } catch (error) {
@@ -208,6 +213,14 @@ export default {
         }
         
         userSubscribe.value = subscribeResponse.data ? subscribeResponse.data : subscribeResponse;
+
+        try {
+          const inviteResponse = await getInviteData();
+          inviteData.value = inviteResponse.data ? inviteResponse.data : inviteResponse;
+        } catch (error) {
+          inviteData.value = null;
+          console.warn('获取邀请统计失败，跳过Chatwoot邀请属性:', error);
+        }
       } catch (error) {
         console.error('获取用户信息失败:', error);
       }
@@ -242,6 +255,7 @@ export default {
         const balance = extractBalance();
         const trafficDetails = calculateTrafficDetails();
         const userMeta = extractUserMeta();
+        const relationshipMeta = extractRelationshipMeta();
         
         // 构建自定义属性（仅推送配置中值不为空的属性）
         const customAttrs = {};
@@ -250,15 +264,31 @@ export default {
         if (attrKeys.expires) customAttrs[attrKeys.expires] = expireDate;
         if (attrKeys.traffic) customAttrs[attrKeys.traffic] = remainingGB + ' GB';
         if (attrKeys.balance) customAttrs[attrKeys.balance] = balance + ' ' + currencySymbol.value;
-        if (attrKeys.uuid) customAttrs[attrKeys.uuid] = userMeta.uuid || '未知';
-        if (attrKeys.created_at) customAttrs[attrKeys.created_at] = userMeta.created_at || '未知';
+        if (attrKeys.created_at) customAttrs[attrKeys.created_at] = userMeta.created_at || '无';
         if (attrKeys.used_traffic) customAttrs[attrKeys.used_traffic] = trafficDetails.usedGB + ' GB';
         if (attrKeys.total_traffic) customAttrs[attrKeys.total_traffic] = trafficDetails.totalGB + ' GB';
-        if (attrKeys.upload) customAttrs[attrKeys.upload] = trafficDetails.uploadGB + ' GB';
-        if (attrKeys.download) customAttrs[attrKeys.download] = trafficDetails.downloadGB + ' GB';
+        if (attrKeys.upload) customAttrs[attrKeys.upload] = trafficDetails.hasData ? trafficDetails.uploadGB + ' GB' : '无';
+        if (attrKeys.download) customAttrs[attrKeys.download] = trafficDetails.hasData ? trafficDetails.downloadGB + ' GB' : '无';
         if (attrKeys.telegram_id) customAttrs[attrKeys.telegram_id] = userMeta.telegram_id || '未绑定';
-        if (attrKeys.invite_code) customAttrs[attrKeys.invite_code] = userMeta.invite_code || '无';
         if (attrKeys.commission_balance) customAttrs[attrKeys.commission_balance] = (userMeta.commission_balance || 0) + ' ' + currencySymbol.value;
+        if (attrKeys.invited_users) {
+          customAttrs[attrKeys.invited_users] =
+            relationshipMeta.invitedUsers === null
+              ? '无'
+              : String(relationshipMeta.invitedUsers);
+        }
+        if (attrKeys.online_devices) {
+          customAttrs[attrKeys.online_devices] =
+            relationshipMeta.onlineDevices === null
+              ? '无'
+              : String(relationshipMeta.onlineDevices);
+        }
+        if (attrKeys.device_limit) {
+          customAttrs[attrKeys.device_limit] =
+            relationshipMeta.deviceLimit === null
+              ? '无'
+              : String(relationshipMeta.deviceLimit);
+        }
         
         if (Object.keys(customAttrs).length > 0) {
           window.$chatwoot.setCustomAttributes(customAttrs);
@@ -292,7 +322,7 @@ export default {
       }
       
       if (!userEmail) {
-        const storedUser = localStorage.getItem('user');
+        const storedUser = localStorage.getItem('userInfo');
         if (storedUser) {
           try {
             const parsedUser = JSON.parse(storedUser);
@@ -433,16 +463,19 @@ export default {
         totalGB: toGB(transferEnable),
         usedGB: toGB(u + d),
         uploadGB: toGB(u),
-        downloadGB: toGB(d)
+        downloadGB: toGB(d),
+        hasData:
+          userSubscribe.value?.transfer_enable !== undefined ||
+          userSubscribe.value?.data?.transfer_enable !== undefined ||
+          userInfo.value?.transfer_enable !== undefined ||
+          userInfo.value?.data?.transfer_enable !== undefined
       };
     };
     
     const extractUserMeta = () => {
       const meta = {
-        uuid: '',
         created_at: '',
         telegram_id: '',
-        invite_code: '',
         commission_balance: 0
       };
       
@@ -452,13 +485,35 @@ export default {
       // 兼容 data 嵌套和扁平两种结构
       const data = source.data || source;
       
-      if (data.uuid) meta.uuid = data.uuid;
       if (data.created_at) meta.created_at = formatDate(data.created_at);
       if (data.telegram_id) meta.telegram_id = String(data.telegram_id);
-      if (data.invite_user_id) meta.invite_code = String(data.invite_user_id);
       if (data.commission_balance !== undefined) meta.commission_balance = (data.commission_balance || 0) / 100;
       
       return meta;
+    };
+
+    const extractRelationshipMeta = () => {
+      const info = userInfo.value?.data || userInfo.value || {};
+      const subscribe = userSubscribe.value?.data || userSubscribe.value || {};
+      const invite = inviteData.value?.data || inviteData.value || {};
+      const hasOwn = (object, key) =>
+        Object.prototype.hasOwnProperty.call(object, key);
+
+      return {
+        invitedUsers: Array.isArray(invite.stat)
+          ? Number(invite.stat[0] || 0)
+          : null,
+        onlineDevices: hasOwn(subscribe, 'alive_ip')
+          ? Number(subscribe.alive_ip || 0)
+          : null,
+        deviceLimit: hasOwn(subscribe, 'device_limit')
+          ? Number(subscribe.device_limit || 0)
+          : hasOwn(info, 'device_limit')
+            ? Number(info.device_limit || 0)
+            : hasOwn(subscribe.plan || {}, 'device_limit')
+              ? Number(subscribe.plan.device_limit || 0)
+              : null
+      };
     };
     
     const checkIfMobile = () => {
